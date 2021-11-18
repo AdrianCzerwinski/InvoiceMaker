@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">InvoiceMaker</string>
+    <string name="nazwa_firmy">Nazwa firmy</string>
+    <string name="ulica_numer_budynku">Ulica, numer budynku</string>
+    <string name="nip">NIP</string>
+    <string name="telefon">Telefon</string>
+    <string name="email">Email</string>
+    <string name="miasto">Miasto</string>
+    <string name="kod_pocztowy">Kod Pocztowy</string>
+    <string name="nowy_klient">Nowy Klient</string>
+    <string name="edytuj">Edytuj</string>
+    <string name="company_name">Company Name</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="delete">Delete</string>
+    <string name="adding_new_line">Adding new line</string>
+    <string name="invoice_number">Numer Faktury</string>
+    <string name="adding_new_invoice">Adding new invoice</string>
+    <string name="numer_faktury">Numer Faktury</string>
+    <string name="wybierz_klienta">Wybierz Klienta</string>
+    <string name="wybierz_walut">Wybierz Walutę</string>
+    <string name="vat">VAT</string>
+    <string name="ilo">Ilość</string>
+    <string name="nazwa_us_ugi">Nazwa usługi</string>
+    <string name="jednostka">Jednostka</string>
+    <string name="cena">Cena</string>
+    <string name="wybierz_j_zyk_fv">Wybierz język FV</string>
+    <!-- TODO: Remove or change this placeholder text -->
+
+    <string-array name="units">
+        <item>m</item>
+        <item>m2</item>
+        <item>szt.</item>
+        <item>h</item>
+    </string-array>
+
+    <string-array name="currencies">
+        <item>PLN</item>
+        <item>EUR</item>
+    </string-array>
+
+    <string-array name="languages">
+        <item>Polski</item>
+        <item>Niemiecki</item>
+    </string-array>
+
+</resources>

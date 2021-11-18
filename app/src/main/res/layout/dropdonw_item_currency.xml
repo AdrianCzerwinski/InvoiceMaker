@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<TextView android:id="@+id/textView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:textColorHint="@color/text"
+    android:hint="Wybierz walutę"
+    android:padding="14dp"
+    android:textColor="@color/text"
+    android:textSize="16dp"
+    xmlns:android="http://schemas.android.com/apk/res/android" />
