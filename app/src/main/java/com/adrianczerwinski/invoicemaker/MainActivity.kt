@@ -18,6 +18,7 @@ import com.adrianczerwinski.invoicemaker.data.models.Seller
 import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.ActivityMainBinding
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
