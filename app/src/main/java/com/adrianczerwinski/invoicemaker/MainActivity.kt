@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
         var firstTime = preferences.getString("FirstTimeInstall", "")
         var name = preferences.getString("Name", "")
 
+        //Change for traingin puproses
+
 
         if (firstTime == "YES" && name != "") {
             binding.welcome.isVisible = false
