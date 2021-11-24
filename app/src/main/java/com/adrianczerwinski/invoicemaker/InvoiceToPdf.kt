@@ -68,7 +68,6 @@ class InvoiceToPdf : AppCompatActivity() {
         var list: ArrayList<Job> = intent.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
         val invoiceNo = list.first().invoiceNumber
         val fileName = "${list.first().invoiceNumber}.pdf"
-//        val fileName = "test.pdf"
         val pdfView: PDFView = binding.pdfView
 
         Dexter.withActivity(this)
