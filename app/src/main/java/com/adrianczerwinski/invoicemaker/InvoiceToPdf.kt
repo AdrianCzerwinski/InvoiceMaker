@@ -11,7 +11,13 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.adrianczerwinski.invoicemaker.data.models.Job
+import com.adrianczerwinski.invoicemaker.data.models.Seller
+import com.adrianczerwinski.invoicemaker.data.viemodels.ClientViewModel
+import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
+import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.ActivityInvoiceToPdfBinding
 import com.adrianczerwinski.invoicemaker.fragments.newinvoice.Common
 import com.adrianczerwinski.invoicemaker.fragments.newinvoice.MyClient
@@ -29,6 +35,7 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -38,15 +45,16 @@ import java.util.*
 class InvoiceToPdf : AppCompatActivity() {
     private lateinit var binding: ActivityInvoiceToPdfBinding
     var cellsCount = 10
+    private lateinit var mSellerViewModel: SellerViewModel
 
-    // Sprzedający - do zmiany na klasę z ROOM Db
 
-    var companySell = "Piotr Czerwinski"
-    var addressSell = "Rugwagstrasse 52"
-    var taxNumberSell = "6166668896"
-    var phoneSell = "606248951"
-    var emailSell = "blabla@gmail.com"
-    var contactSell = "Piotr Czerwinski"
+    // Seller:
+    var companySell: String = "No data"
+    var addressSell: String = "No data"
+    var contactSell: String = "No data"
+    var contactData: String = "No data"
+    var taxNumberSell: String = "No data"
+
 
     // Buyer:
 
@@ -59,22 +67,35 @@ class InvoiceToPdf : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInvoiceToPdfBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        mSellerViewModel = ViewModelProvider(this)[SellerViewModel::class.java]
 
-        val date = getCurrentDate()
+        // Sprzedający - do zmiany na klasę z ROOM Db
+
+        lifecycleScope.launch {
+            val myData: Seller? = mSellerViewModel.getMySellerData()
+            if (myData != null) {
+                companySell = myData.name
+                addressSell = "${myData.city} ${myData.postalCode}, ${myData.streetNumber}"
+                contactSell = myData.name
+                contactData = "${myData.phone} || ${myData.email}"
+                taxNumberSell = " ${myData.taxNumber}"
+            }
+        }
 
         val intent: Intent = intent
-        var list: ArrayList<Job> = intent.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
+        val list: ArrayList<Job> = intent.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
         val invoiceNo = list.first().invoiceNumber
-        val fileName = "${list.first().invoiceNumber}.pdf"
+        val invoiceNoFile = invoiceNameAfterDeletingWrongChars(invoiceNo)
+        val fileName = "${invoiceNoFile}.pdf"
         val pdfView: PDFView = binding.pdfView
+
+
 
         Dexter.withActivity(this)
             .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .withListener(object : PermissionListener {
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-                    createPDFFile(Common.getAppPath(this@InvoiceToPdf) + fileName)
+                    createPDFFile(Common.getAppPath(this@InvoiceToPdf) + fileName, companySell, contactSell, addressSell, taxNumberSell)
                     binding.btnCreatePdf.setOnClickListener {
                         printPDF()
                     }
@@ -126,10 +147,11 @@ class InvoiceToPdf : AppCompatActivity() {
             })
             .check()
 
-
+        val view = binding.root
+        setContentView(view)
     }
 
-    private fun createPDFFile(path: String) {
+    private fun createPDFFile(path: String, companySell: String, contactSell: String, addressSell:String, taxNumberSell: String) {
         if (File(path).exists())
             File(path).delete()
         try {
@@ -381,7 +403,10 @@ class InvoiceToPdf : AppCompatActivity() {
         val intents: Intent = intent
         val lists: ArrayList<Job> =
             intents.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
-        val fileNames = lists.first().invoiceNumber
+        val invoiceNos = lists.first().invoiceNumber
+        val invoiceNoFiles = invoiceNameAfterDeletingWrongChars(invoiceNos)
+        val fileNames = "${invoiceNoFiles}.pdf"
+
 
         try {
             val printAdapter = PdfDocumentAdapter(
@@ -438,12 +463,24 @@ class InvoiceToPdf : AppCompatActivity() {
         return sdf.format(Date())
     }
 
-    fun netto(price: Double, quantity: Int): Double {
+    private fun netto(price: Double, quantity: Int): Double {
         return price * quantity
     }
 
-    fun brutto(netto: Double, taxValue: Int): Double {
+    private fun brutto(netto: Double, taxValue: Int): Double {
         return netto * taxValue
+    }
+
+    private fun invoiceNameAfterDeletingWrongChars(name: String): String {
+        var x = name.replace('/','_')
+        x = x.replace('"','_')
+        x = x.replace('<','_')
+        x = x.replace('>','_')
+        x = x.replace(':','_')
+        x = x.replace('*','_')
+        x = x.replace('?','_')
+        x = x.replace('!','_')
+      return x
     }
 
 
