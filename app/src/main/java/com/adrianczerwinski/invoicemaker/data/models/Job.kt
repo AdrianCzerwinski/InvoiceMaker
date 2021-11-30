@@ -16,6 +16,5 @@ data class Job(
     val invoiceNumber: String,
     val price: Double,
     val quantity: Int,
-    val unit: String,
-    val vat: Int
+    val unit: String
 ) :Parcelable

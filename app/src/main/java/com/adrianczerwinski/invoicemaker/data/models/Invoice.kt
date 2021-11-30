@@ -16,7 +16,7 @@ data class Invoice(
     var cells: Int,
     var sum: Double,
     var currency: String,
-    var language: String,
+    val vat: Int,
     @Embedded
     var clientName: Client,
 

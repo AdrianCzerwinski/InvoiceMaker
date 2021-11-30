@@ -12,11 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.adrianczerwinski.invoicemaker.data.models.Job
-import com.adrianczerwinski.invoicemaker.data.models.Seller
-import com.adrianczerwinski.invoicemaker.data.viemodels.ClientViewModel
-import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
 import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.ActivityInvoiceToPdfBinding
 import com.adrianczerwinski.invoicemaker.fragments.newinvoice.Common
@@ -35,7 +31,6 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -49,11 +44,6 @@ class InvoiceToPdf : AppCompatActivity() {
 
 
     // Seller:
-    var companySell: String = "No data"
-    var addressSell: String = "No data"
-    var contactSell: String = "No data"
-    var contactData: String = "No data"
-    var taxNumberSell: String = "No data"
 
 
     // Buyer:
@@ -69,19 +59,6 @@ class InvoiceToPdf : AppCompatActivity() {
         binding = ActivityInvoiceToPdfBinding.inflate(layoutInflater)
         mSellerViewModel = ViewModelProvider(this)[SellerViewModel::class.java]
 
-        // Sprzedający - do zmiany na klasę z ROOM Db
-
-        lifecycleScope.launch {
-            val myData: Seller? = mSellerViewModel.getMySellerData()
-            if (myData != null) {
-                companySell = myData.name
-                addressSell = "${myData.city} ${myData.postalCode}, ${myData.streetNumber}"
-                contactSell = myData.name
-                contactData = "${myData.phone} || ${myData.email}"
-                taxNumberSell = " ${myData.taxNumber}"
-            }
-        }
-
         val intent: Intent = intent
         val list: ArrayList<Job> = intent.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
         val invoiceNo = list.first().invoiceNumber
@@ -89,13 +66,23 @@ class InvoiceToPdf : AppCompatActivity() {
         val fileName = "${invoiceNoFile}.pdf"
         val pdfView: PDFView = binding.pdfView
 
+        val companySell = intent.getStringExtra("sellerName").toString()
+        val addressSell = intent.getStringExtra("sellerAddress").toString()
+        val taxNumberSell = intent.getStringExtra("sellerTaxNumber").toString()
+        val contactSell = intent.getStringExtra("sellerContactData").toString()
 
 
         Dexter.withActivity(this)
             .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
             .withListener(object : PermissionListener {
                 override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-                    createPDFFile(Common.getAppPath(this@InvoiceToPdf) + fileName, companySell, contactSell, addressSell, taxNumberSell)
+                    createPDFFile(
+                        Common.getAppPath(this@InvoiceToPdf) + fileName,
+                        companySell,
+                        contactSell,
+                        addressSell,
+                        taxNumberSell
+                    )
                     binding.btnCreatePdf.setOnClickListener {
                         printPDF()
                     }
@@ -151,7 +138,13 @@ class InvoiceToPdf : AppCompatActivity() {
         setContentView(view)
     }
 
-    private fun createPDFFile(path: String, companySell: String, contactSell: String, addressSell:String, taxNumberSell: String) {
+    private fun createPDFFile(
+        path: String,
+        companySell: String,
+        contactSell: String,
+        addressSell: String,
+        taxNumberSell: String
+    ) {
         if (File(path).exists())
             File(path).delete()
         try {
@@ -184,12 +177,8 @@ class InvoiceToPdf : AppCompatActivity() {
 
             val titleStyle = Font(fontBold, 30.0f, Font.NORMAL, BaseColor.BLACK)
             val cellStyle = Font(fontNormal, 14f, Font.NORMAL, BaseColor.BLACK)
-            val subtitleStyle = Font(fontNormal, 14f, Font.NORMAL, BaseColor.BLACK)
-            val descriptionStyle = Font(fontNormal, 8f, Font.NORMAL, BaseColor.BLACK)
-
-//            val bundle = intent.getBundleExtra("myBundle")
-//            var job1  = bundle!!.getParcelable<Job>("job1") as Job
-//            val invoiceNo = job1.invoiceNumber
+            val subtitleStyle = Font(fontNormal, 20f, Font.NORMAL, BaseColor.BLACK)
+            val descriptionStyle = Font(fontNormal, 12f, Font.NORMAL, BaseColor.BLACK)
 
             val intent: Intent = intent
             var list: ArrayList<Job> =
@@ -197,30 +186,44 @@ class InvoiceToPdf : AppCompatActivity() {
             val invoiceNo = list.first().invoiceNumber
 
             // Title
-            addNewItem(document, invoiceNo, Element.ALIGN_LEFT, titleStyle)
-            addLineSeparator(document)
+            addNewItem(document, "Rechnung Nr: $invoiceNo", Element.ALIGN_LEFT, titleStyle)
+            addLineSeparatorThick(document)
+            addLineSpace(document)
 
             //Seller and Buyer
             addLineSpace(document)
-            addNewItem(document, "Sprzedający", Element.ALIGN_LEFT, subtitleStyle)
+            addNewItem(document, "Varkäufer:", Element.ALIGN_LEFT, subtitleStyle)
             addLineSpace(document)
-            addLineSpace(document)
-
             addNewItem(document, companySell, Element.ALIGN_LEFT, descriptionStyle)
             addNewItem(document, addressSell, Element.ALIGN_LEFT, descriptionStyle)
-            addNewItem(document, taxNumberSell, Element.ALIGN_LEFT, descriptionStyle)
+            addNewItem(document, contactSell, Element.ALIGN_LEFT, descriptionStyle)
+            addNewItem(
+                document,
+                taxNumberSell,
+                Element.ALIGN_LEFT,
+                descriptionStyle
+            )
             addLineSpace(document)
-            addNewItem(document, "Kupujący", Element.ALIGN_LEFT, subtitleStyle)
+            addLineSpace(document)
+            addNewItem(document, "Käufer:", Element.ALIGN_LEFT, subtitleStyle)
             addNewItem(document, companyBuy, Element.ALIGN_LEFT, descriptionStyle)
             addNewItem(document, addressBuy, Element.ALIGN_LEFT, descriptionStyle)
-            addNewItem(document, taxNumberBuy, Element.ALIGN_LEFT, descriptionStyle)
+            addNewItem(
+                document,
+                "Steuernummer: $taxNumberBuy",
+                Element.ALIGN_LEFT,
+                descriptionStyle
+            )
+            addLineSpace(document)
+            addLineSpace(document)
+            addLineSeparatorThick(document)
             addLineSpace(document)
             addLineSpace(document)
 
             // Adding column titles with style properties
             // plus setting width of columns
 
-            val columnWidths = floatArrayOf(2f, 10f, 3f, 5f, 5f, 3f, 3f, 3f, 3f)
+            val columnWidths = floatArrayOf(2f, 10f, 3f, 5f, 5f, 3f, 3f)
             val table1 = PdfPTable(columnWidths)
 
             table1.widthPercentage = 100f
@@ -229,15 +232,13 @@ class InvoiceToPdf : AppCompatActivity() {
             table1.defaultCell.border = 0
             table1.defaultCell.setPadding(4f)
 
-            val lp = "Lp."
-            val description = "Nazwa"
-            val amount = "Ilość"
-            val unit = "Jednostka"
-            val price = "Cena"
-            val cost = "Netto"
-            val taxRate = "VAT"
-            val brutto = "Brutto"
-            val currency = "Waluta"
+            val lp = "Pos."
+            val description = "Arbeitsbeschreibung"
+            val amount = "Menge"
+            val unit = "ME"
+            val price = "Einzelpreis"
+            val brutto = "Preis inkl. MwSt."
+            val currency = "Währung"
 
             var mainCell = PdfPCell(Phrase(lp, cellStyle))
             mainCell.border = PdfPCell.NO_BORDER
@@ -259,14 +260,6 @@ class InvoiceToPdf : AppCompatActivity() {
             mainCell.border = PdfPCell.NO_BORDER
             table1.addCell(mainCell)
 
-            mainCell = PdfPCell(Phrase(cost, cellStyle))
-            mainCell.border = PdfPCell.NO_BORDER
-            table1.addCell(mainCell)
-
-            mainCell = PdfPCell(Phrase(taxRate, cellStyle))
-            mainCell.border = PdfPCell.NO_BORDER
-            table1.addCell(mainCell)
-
             mainCell = PdfPCell(Phrase(brutto, cellStyle))
             mainCell.border = PdfPCell.NO_BORDER
             table1.addCell(mainCell)
@@ -280,8 +273,6 @@ class InvoiceToPdf : AppCompatActivity() {
 
             addLineSeparator(document)
 
-            val currencyVar = "PLN"
-            var sum = 0.0
             val table2 = PdfPTable(columnWidths)
             var mainCellVar: PdfPCell
 
@@ -292,7 +283,9 @@ class InvoiceToPdf : AppCompatActivity() {
             table2.defaultCell.setPadding(4f)
 
             cellsCount = intent.getIntExtra("jobsCount", 1)
-
+            val sum = intent.getDoubleExtra("theSum", 0.00)
+            val taxValue = intent.getIntExtra("VAT", 0)
+            val currencyVar = intent.getStringExtra("Currency")
 
             for (i in 0 until cellsCount) {
 
@@ -321,30 +314,22 @@ class InvoiceToPdf : AppCompatActivity() {
                 table2.addCell(mainCellVar)
                 addLineSpace(document)
 
-                var nettoValue = netto(
-                    list.getOrNull(i)!!.price,
-                    list.getOrNull(i)!!.quantity
-                )
                 mainCellVar = PdfPCell(
                     Phrase(
-                        nettoValue.toString(), cellStyle
+                        brutto(
+                            list.getOrNull(i)!!.price,
+                            list.getOrNull(i)!!.quantity.toDouble(),
+                            taxValue
+                        ).toString(), cellStyle
                     )
                 )
-                mainCellVar.border = PdfPCell.NO_BORDER
-                table2.addCell(mainCellVar)
-                addLineSpace(document)
 
-                var tax = list.getOrNull(i)!!.vat
+//                sum += brutto(
+//                    list.getOrNull(i)!!.price,
+//                    list.getOrNull(i)!!.quantity.toDouble(),
+//                    taxValue
+//                )
 
-                mainCellVar = PdfPCell(Phrase("$tax %", cellStyle))
-                mainCellVar.border = PdfPCell.NO_BORDER
-                table2.addCell(mainCellVar)
-                addLineSpace(document)
-
-
-                sum += brutto(nettoValue, tax)
-
-                mainCellVar = PdfPCell(Phrase(brutto(nettoValue, tax).toString(), cellStyle))
                 mainCellVar.border = PdfPCell.NO_BORDER
                 table2.addCell(mainCellVar)
                 addLineSpace(document)
@@ -358,29 +343,13 @@ class InvoiceToPdf : AppCompatActivity() {
             }
             addLineSpace(document)
             addLineSpace(document)
-
-            mainCellVar = PdfPCell(Phrase(" ", cellStyle))
-            mainCellVar.border = PdfPCell.NO_BORDER
-            mainCellVar.colspan = 6
-            table2.addCell(mainCellVar)
-
-            mainCellVar = PdfPCell(Phrase("Suma", cellStyle))
-            mainCellVar.border = PdfPCell.NO_BORDER
-            mainCellVar.colspan = 1
-            table2.addCell(mainCellVar)
-
-            mainCellVar = PdfPCell(Phrase(sum.toString(), cellStyle))
-            mainCellVar.border = PdfPCell.NO_BORDER
-            mainCellVar.colspan = 1
-            table2.addCell(mainCellVar)
-
-            mainCellVar = PdfPCell(Phrase(currencyVar, cellStyle))
-            mainCellVar.border = PdfPCell.NO_BORDER
-            table2.addCell(mainCellVar)
-
-
-
             document.add(table2)
+
+            addLineSeparator(document)
+            addLineSpace(document)
+            addLineSpace(document)
+
+            addNewItem(document, "Gesamptbetrag: $sum $currencyVar", Element.ALIGN_LEFT, subtitleStyle)
 
 
             //close
@@ -432,6 +401,16 @@ class InvoiceToPdf : AppCompatActivity() {
     }
 
     @kotlin.jvm.Throws(DocumentException::class)
+    private fun addLineSeparatorThick(document: Document) {
+        val lineSeparator = LineSeparator()
+        lineSeparator.lineColor = BaseColor(0, 0, 0, 68)
+        lineSeparator.lineColor = BaseColor(0, 0, 0, 68)
+        addLineSpace(document)
+        document.add(Chunk(lineSeparator))
+        addLineSpace(document)
+    }
+
+    @kotlin.jvm.Throws(DocumentException::class)
     private fun addLineSpace(document: Document) {
         document.add(Paragraph(""))
 
@@ -463,24 +442,20 @@ class InvoiceToPdf : AppCompatActivity() {
         return sdf.format(Date())
     }
 
-    private fun netto(price: Double, quantity: Int): Double {
-        return price * quantity
-    }
-
-    private fun brutto(netto: Double, taxValue: Int): Double {
-        return netto * taxValue
+    private fun brutto(unitPrice: Double, amount: Double, taxValue: Int): Double {
+        return (unitPrice * amount) + (unitPrice * amount) * (taxValue*0.01)
     }
 
     private fun invoiceNameAfterDeletingWrongChars(name: String): String {
-        var x = name.replace('/','_')
-        x = x.replace('"','_')
-        x = x.replace('<','_')
-        x = x.replace('>','_')
-        x = x.replace(':','_')
-        x = x.replace('*','_')
-        x = x.replace('?','_')
-        x = x.replace('!','_')
-      return x
+        var x = name.replace('/', '_')
+        x = x.replace('"', '_')
+        x = x.replace('<', '_')
+        x = x.replace('>', '_')
+        x = x.replace(':', '_')
+        x = x.replace('*', '_')
+        x = x.replace('?', '_')
+        x = x.replace('!', '_')
+        return x
     }
 
 

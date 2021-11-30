@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.adrianczerwinski.invoicemaker.R
+import com.adrianczerwinski.invoicemaker.data.models.Job
 import com.adrianczerwinski.invoicemaker.data.models.Seller
 import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.FragmentFinancesBinding
@@ -42,6 +43,8 @@ class Finances : Fragment() {
                 binding.viewCompanyTaxNumber.text = "VAT: ${myData.taxNumber}"
             }
         }
+
+
 
 
         _binding = FragmentFinancesBinding.inflate(inflater, container, false)

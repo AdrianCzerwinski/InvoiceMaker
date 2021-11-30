@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.room.PrimaryKey
 import com.adrianczerwinski.invoicemaker.InvoiceToPdf
@@ -18,8 +19,11 @@ import com.adrianczerwinski.invoicemaker.R
 import com.adrianczerwinski.invoicemaker.data.models.Client
 import com.adrianczerwinski.invoicemaker.data.models.Invoice
 import com.adrianczerwinski.invoicemaker.data.models.Job
+import com.adrianczerwinski.invoicemaker.data.models.Seller
 import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
+import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.FragmentNewInvoiceBinding
+import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 
@@ -28,18 +32,20 @@ class NewInvoice : Fragment() {
     private var _binding: FragmentNewInvoiceBinding? = null
     private val binding get() = _binding!!
     var jobsCount = 1
-    var sum: Double = 0.0
-    var job2 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job3 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job4 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job5 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job6 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job7 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job8 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job9 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    var job10 = Job(0, "default", "default", 0.0, 0, "default", 0)
-    lateinit var job1: Job
+    var sum: Double = 0.00
+    var vat = 100
+    var job2 = Job(0, "default", "default", 0.0, 0, "default")
+    var job3 = Job(0, "default", "default", 0.0, 0, "default")
+    var job4 = Job(0, "default", "default", 0.0, 0, "default")
+    var job5 = Job(0, "default", "default", 0.0, 0, "default")
+    var job6 = Job(0, "default", "default", 0.0, 0, "default")
+    var job7 = Job(0, "default", "default", 0.0, 0, "default")
+    var job8 = Job(0, "default", "default", 0.0, 0, "default")
+    var job9 = Job(0, "default", "default", 0.0, 0, "default")
+    var job10 = Job(0, "default", "default", 0.0, 0, "default")
+    private lateinit var job1: Job
     private lateinit var mInvoiceViewModel: InvoiceViewModel
+    private lateinit var mSellerViewModel: SellerViewModel
 
 
     override fun onCreateView(
@@ -48,6 +54,7 @@ class NewInvoice : Fragment() {
     ): View {
         _binding = FragmentNewInvoiceBinding.inflate(inflater, container, false)
         mInvoiceViewModel = ViewModelProvider(this)[InvoiceViewModel::class.java]
+        mSellerViewModel = ViewModelProvider(this)[SellerViewModel::class.java]
         binding.chooseClientName.text = MyClient.name
 
         val units = resources.getStringArray(R.array.units)
@@ -58,8 +65,8 @@ class NewInvoice : Fragment() {
             ArrayAdapter(requireContext(), R.layout.dropdonw_item_currency, currencies)
         val arrayAdapterLanguage =
             ArrayAdapter(requireContext(), R.layout.dropdonw_item_languages, languages)
+        binding.btVat.setAdapter(arrayAdapterLanguage)
         binding.btChooseCurrency.setAdapter(arrayAdapterCurrency)
-        binding.btChooseLanguageTxt.setAdapter(arrayAdapterLanguage)
         binding.unitset1.setAdapter(arrayAdapter)
         binding.unitset2.setAdapter(arrayAdapter)
         binding.unitset3.setAdapter(arrayAdapter)
@@ -71,8 +78,20 @@ class NewInvoice : Fragment() {
         binding.unitset9.setAdapter(arrayAdapter)
         binding.unitset10.setAdapter(arrayAdapter)
 
+        lateinit var companySell: String
+        lateinit var addressSell: String
+        lateinit var contactSell: String
+        lateinit var taxSell: String
 
-
+        lifecycleScope.launch {
+            val myData: Seller? = mSellerViewModel.getMySellerData()
+            if (myData != null) {
+                companySell = myData.name
+                addressSell = "${myData.city} ${myData.postalCode}, ${myData.streetNumber}"
+                contactSell = "${myData.phone} || ${myData.email}"
+                taxSell = "Stuernummer: ${myData.taxNumber}"
+            }
+        }
 
         binding.chooseClientName.setOnClickListener {
             findNavController().navigate(R.id.action_newInvoice_to_clientsList)
@@ -83,18 +102,27 @@ class NewInvoice : Fragment() {
             if (binding.invoiceNumber.text.toString() != "Numer Faktury" &&
                 binding.invoiceNumber.text.toString().isNotEmpty()
             ) {
-                assignValues()
+                vat = binding.btVat.text.toString().toInt()
+
+                if (vat == 100) {
+                    Toast.makeText(context, "Wybierz wartość podatku.", Toast.LENGTH_SHORT).show()
+                } else
+                {
+
+
+                    assignValues()
 
                 if (MyClient.name != "Clients Name" &&
                     binding.jobname1.text!!.isNotEmpty() &&
                     binding.price1.text.isNotEmpty() &&
                     binding.amount1.text.isNotEmpty() &&
-                    binding.unitset1.text.isNotEmpty() &&
-                    binding.tax1.text.isNotEmpty()
+                    binding.unitset1.text.isNotEmpty()
                 ) {
                     val intent = Intent(activity, InvoiceToPdf::class.java)
 
+
                     val data: MutableList<Job> = ArrayList()
+
                     data.add(job1)
                     if (job2.jobName.isNotEmpty()) {
                         data.add(job2)
@@ -125,6 +153,13 @@ class NewInvoice : Fragment() {
                     }
 
                     intent.putExtra("jobsCount", jobsCount)
+                    intent.putExtra("sellerName", companySell)
+                    intent.putExtra("sellerAddress", addressSell)
+                    intent.putExtra("sellerTaxNumber", taxSell)
+                    intent.putExtra("sellerContactData", contactSell)
+                    intent.putExtra("theSum", sum)
+                    intent.putExtra("VAT", binding.btVat.text.toString().toInt())
+                    intent.putExtra("Currency", binding.btChooseCurrency.text.toString())
                     intent.putParcelableArrayListExtra(
                         "data",
                         data as java.util.ArrayList<out Parcelable>
@@ -133,6 +168,7 @@ class NewInvoice : Fragment() {
                     startActivity(intent)
 
                 }
+            }
             } else Toast.makeText(context, "Wpisz nr faktury.", Toast.LENGTH_LONG).show()
 
 
@@ -165,13 +201,13 @@ class NewInvoice : Fragment() {
     }
 
     private fun assignValues() {
+        vat = binding.btVat.text.toString().toInt()
 
         if (binding.jobname1.text!!.isNotEmpty()) {
             if (
                 binding.price1.text.isNotEmpty() &&
                 binding.amount1.text.isNotEmpty() &&
-                binding.unitset1.text.isNotEmpty() &&
-                binding.tax1.text.isNotEmpty()
+                binding.unitset1.text.isNotEmpty()
             ) {
 
                 job1 = Job(
@@ -181,10 +217,10 @@ class NewInvoice : Fragment() {
                     binding.price1.text.toString().toDouble(),
                     binding.amount1.text.toString().toInt(),
                     binding.unitset1.text.toString(),
-                    binding.tax1.text.toString().toInt()
                 )
 
-                sum += (job1.price * job1.quantity) * job1.vat + (job1.price * job1.quantity)
+                sum += (job1.price * job1.quantity) + vat * (job1.price * job1.quantity)
+
 
                 mInvoiceViewModel.insertJob(job1)
 
@@ -200,8 +236,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price2.text.isNotEmpty() &&
                 binding.amount2.text.isNotEmpty() &&
-                binding.unitset2.text.isNotEmpty() &&
-                binding.tax2.text.isNotEmpty()
+                binding.unitset2.text.isNotEmpty()
             ) {
 
                 job2 = Job(
@@ -210,11 +245,10 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price2.text.toString().toDouble(),
                     binding.amount2.text.toString().toInt(),
-                    binding.unitset2.text.toString(),
-                    binding.tax2.text.toString().toInt()
+                    binding.unitset2.text.toString()
                 )
 
-                sum += (job2.price * job2.quantity) * job2.vat + (job2.price * job2.quantity)
+                sum += (job2.price * job2.quantity) + vat * (job2.price * job2.quantity)
 
                 mInvoiceViewModel.insertJob(job2)
 
@@ -230,8 +264,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price3.text.isNotEmpty() &&
                 binding.amount3.text.isNotEmpty() &&
-                binding.unitset3.text.isNotEmpty() &&
-                binding.tax3.text.isNotEmpty()
+                binding.unitset3.text.isNotEmpty()
             ) {
 
                 job3 = Job(
@@ -240,11 +273,10 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price3.text.toString().toDouble(),
                     binding.amount3.text.toString().toInt(),
-                    binding.unitset3.text.toString(),
-                    binding.tax3.text.toString().toInt()
+                    binding.unitset3.text.toString()
                 )
 
-                sum += (job3.price * job3.quantity) * job3.vat + (job3.price * job3.quantity)
+                sum += (job3.price * job3.quantity) + vat * (job3.price * job3.quantity)
                 mInvoiceViewModel.insertJob(job3)
 
             } else
@@ -259,8 +291,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price4.text.isNotEmpty() &&
                 binding.amount4.text.isNotEmpty() &&
-                binding.unitset4.text.isNotEmpty() &&
-                binding.tax4.text.isNotEmpty()
+                binding.unitset4.text.isNotEmpty()
             ) {
 
                 job4 = Job(
@@ -269,11 +300,10 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price4.text.toString().toDouble(),
                     binding.amount4.text.toString().toInt(),
-                    binding.unitset4.text.toString(),
-                    binding.tax4.text.toString().toInt()
+                    binding.unitset4.text.toString()
                 )
 
-                sum += (job4.price * job4.quantity) * job4.vat + (job4.price * job4.quantity)
+                sum += (job4.price * job4.quantity) + vat * (job4.price * job4.quantity)
                 mInvoiceViewModel.insertJob(job4)
 
             } else
@@ -288,8 +318,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price5.text.isNotEmpty() &&
                 binding.amount5.text.isNotEmpty() &&
-                binding.unitset5.text.isNotEmpty() &&
-                binding.tax5.text.isNotEmpty()
+                binding.unitset5.text.isNotEmpty()
             ) {
 
                 job5 = Job(
@@ -298,11 +327,10 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price5.text.toString().toDouble(),
                     binding.amount5.text.toString().toInt(),
-                    binding.unitset5.text.toString(),
-                    binding.tax5.text.toString().toInt()
+                    binding.unitset5.text.toString()
                 )
 
-                sum += (job5.price * job5.quantity) * job5.vat + (job5.price * job5.quantity)
+                sum += (job5.price * job5.quantity) + vat * (job5.price * job5.quantity)
                 mInvoiceViewModel.insertJob(job5)
 
             } else
@@ -317,8 +345,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price7.text.isNotEmpty() &&
                 binding.amount7.text.isNotEmpty() &&
-                binding.unitset7.text.isNotEmpty() &&
-                binding.tax7.text.isNotEmpty()
+                binding.unitset7.text.isNotEmpty()
             ) {
 
                 job7 = Job(
@@ -327,11 +354,10 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price7.text.toString().toDouble(),
                     binding.amount7.text.toString().toInt(),
-                    binding.unitset7.text.toString(),
-                    binding.tax7.text.toString().toInt()
+                    binding.unitset7.text.toString()
                 )
 
-                sum += (job7.price * job7.quantity) * job7.vat + (job7.price * job7.quantity)
+                sum += (job7.price * job7.quantity) + vat * (job7.price * job7.quantity)
 
                 mInvoiceViewModel.insertJob(job7)
 
@@ -347,8 +373,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price6.text.isNotEmpty() &&
                 binding.amount6.text.isNotEmpty() &&
-                binding.unitset6.text.isNotEmpty() &&
-                binding.tax6.text.isNotEmpty()
+                binding.unitset6.text.isNotEmpty()
             ) {
 
                 job6 = Job(
@@ -357,10 +382,9 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price6.text.toString().toDouble(),
                     binding.amount6.text.toString().toInt(),
-                    binding.unitset6.text.toString(),
-                    binding.tax6.text.toString().toInt()
+                    binding.unitset6.text.toString()
                 )
-                sum += (job6.price * job6.quantity) * job6.vat + (job6.price * job6.quantity)
+                sum += (job6.price * job6.quantity) + vat * (job6.price * job6.quantity)
 
                 mInvoiceViewModel.insertJob(job6)
 
@@ -376,8 +400,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price8.text.isNotEmpty() &&
                 binding.amount8.text.isNotEmpty() &&
-                binding.unitset8.text.isNotEmpty() &&
-                binding.tax8.text.isNotEmpty()
+                binding.unitset8.text.isNotEmpty()
             ) {
 
                 job8 = Job(
@@ -386,10 +409,9 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price8.text.toString().toDouble(),
                     binding.amount8.text.toString().toInt(),
-                    binding.unitset8.text.toString(),
-                    binding.tax8.text.toString().toInt()
+                    binding.unitset8.text.toString()
                 )
-                sum += (job8.price * job8.quantity) * job8.vat + (job8.price * job8.quantity)
+                sum += (job8.price * job8.quantity) + vat * (job8.price * job8.quantity)
 
                 mInvoiceViewModel.insertJob(job8)
 
@@ -405,8 +427,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price9.text.isNotEmpty() &&
                 binding.amount9.text.isNotEmpty() &&
-                binding.unitset9.text.isNotEmpty() &&
-                binding.tax9.text.isNotEmpty()
+                binding.unitset9.text.isNotEmpty()
             ) {
 
                 job9 = Job(
@@ -415,10 +436,9 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price9.text.toString().toDouble(),
                     binding.amount9.text.toString().toInt(),
-                    binding.unitset9.text.toString(),
-                    binding.tax9.text.toString().toInt()
+                    binding.unitset9.text.toString()
                 )
-                sum += (job9.price * job9.quantity) * job9.vat + (job9.price * job9.quantity)
+                sum += (job9.price * job9.quantity) + vat * (job9.price * job9.quantity)
 
                 mInvoiceViewModel.insertJob(job9)
 
@@ -434,8 +454,7 @@ class NewInvoice : Fragment() {
             if (
                 binding.price10.text.isNotEmpty() &&
                 binding.amount10.text.isNotEmpty() &&
-                binding.unitset10.text.isNotEmpty() &&
-                binding.tax10.text.isNotEmpty()
+                binding.unitset10.text.isNotEmpty()
             ) {
 
                 job10 = Job(
@@ -444,10 +463,9 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     binding.price10.text.toString().toDouble(),
                     binding.amount10.text.toString().toInt(),
-                    binding.unitset10.text.toString(),
-                    binding.tax10.text.toString().toInt()
+                    binding.unitset10.text.toString()
                 )
-                sum += (job10.price * job10.quantity) * job10.vat + (job10.price * job10.quantity)
+                sum += (job10.price * job10.quantity) + vat * (job10.price * job10.quantity)
 
                 mInvoiceViewModel.insertJob(job10)
 
@@ -468,8 +486,8 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     jobsCount,
                     sum,
-                    binding.btChooseCurrency.toString(),
-                    binding.btChooseLanguageTxt.toString(),
+                    binding.btChooseLanguage.toString(),
+                    binding.btVat.text.toString().toInt(),
                     MyClient
                 )
             mInvoiceViewModel.insertInvoice(newInvoice)
@@ -487,7 +505,6 @@ class NewInvoice : Fragment() {
 }
 
 var MyClient = Client(0, "Wybierz Klienta", "x", "x", "x", "x", "x", "x")
-
 
 // hope to delete it someday
 @Parcelize
