@@ -4,8 +4,8 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.*
-import androidx.fragment.app.Fragment
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -56,8 +56,9 @@ class UpdaterFragment : Fragment() {
         val streetNumber1 = binding.etUpdateUlicainumer.text.toString()
         val postalCode1 = binding.etUpdatePostalCode.text.toString()
         val city1 = binding.etUpdateCity.text.toString()
+        val language1 = "DE"
 
-        if (inputCheck(name1, email1, taxNumber1, streetNumber1, postalCode1, city1)) {
+        if (inputCheck(name1, email1, taxNumber1, streetNumber1, postalCode1, city1, language1)) {
             // Updating the Client:
             val updatedclient = Client(
                 args.currentClient.id,
@@ -67,7 +68,8 @@ class UpdaterFragment : Fragment() {
                 taxNumber1,
                 streetNumber1,
                 postalCode1,
-                city1
+                city1,
+                language1
             )
             // Dodaje firmę do bazy danych na telefonie:
             mClientViewModel.updateClient(updatedclient)
@@ -89,13 +91,16 @@ class UpdaterFragment : Fragment() {
         taxNumber1: String,
         streetNumber1: String,
         postalCode1: String,
-        city1: String
+        city1: String,
+        language1: String
     ): Boolean {
         return (!TextUtils.isEmpty(name1) && !TextUtils.isEmpty(email1) && !TextUtils.isEmpty(
             taxNumber1
         ) && !TextUtils.isEmpty(
             streetNumber1
-        ) && !TextUtils.isEmpty(postalCode1) && !TextUtils.isEmpty(city1))
+        ) && !TextUtils.isEmpty(postalCode1) && !TextUtils.isEmpty(city1) && !TextUtils.isEmpty(
+            language1
+        ))
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

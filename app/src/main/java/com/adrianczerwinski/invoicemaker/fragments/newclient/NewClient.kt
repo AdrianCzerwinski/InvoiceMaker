@@ -72,7 +72,7 @@ class NewClient : Fragment() {
         if (inputCheck(name1, email1, taxNumber1, streetNumber1, postalCode1, city1)) {
             // Tworzy firmę:
             val client =
-                Client(0, name1, email1, phone1, taxNumber1, streetNumber1, postalCode1, city1)
+                Client(0, name1, email1, phone1, taxNumber1, streetNumber1, postalCode1, city1, "DE")
             // Dodaje firmę do bazy danych na telefonie:
             mClientViewModel.insertClient(client)
             Toast.makeText(requireContext(), "Dodano nowego klienta.", Toast.LENGTH_LONG).show()

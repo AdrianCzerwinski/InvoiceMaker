@@ -89,7 +89,7 @@ class InvoiceToPdf : AppCompatActivity() {
                     binding.btSendInvoiceViaEmail.setOnClickListener {
                         val attachment =
                             File(Common.getAppPath(this@InvoiceToPdf) + fileName).toUri()
-                        composeEmail(emailBuy, invoiceNo, attachment)
+                        composeEmail(emailBuy, invoiceNo, attachment, companySell)
                     }
 
                 }
@@ -324,12 +324,6 @@ class InvoiceToPdf : AppCompatActivity() {
                     )
                 )
 
-//                sum += brutto(
-//                    list.getOrNull(i)!!.price,
-//                    list.getOrNull(i)!!.quantity.toDouble(),
-//                    taxValue
-//                )
-
                 mainCellVar.border = PdfPCell.NO_BORDER
                 table2.addCell(mainCellVar)
                 addLineSpace(document)
@@ -349,7 +343,12 @@ class InvoiceToPdf : AppCompatActivity() {
             addLineSpace(document)
             addLineSpace(document)
 
-            addNewItem(document, "Gesamptbetrag: $sum $currencyVar", Element.ALIGN_LEFT, subtitleStyle)
+            addNewItem(
+                document,
+                "Gesamptbetrag: $sum $currencyVar",
+                Element.ALIGN_LEFT,
+                subtitleStyle
+            )
 
 
             //close
@@ -424,12 +423,21 @@ class InvoiceToPdf : AppCompatActivity() {
         document.add(p)
     }
 
-    fun composeEmail(addresses: Array<String>, subject: String, attachment: Uri) {
+    fun composeEmail(addresses: Array<String>, subject: String, attachment: Uri, name: String) {
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, addresses)
             putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, "Dzień dobry, w załaczniku faktura.")
+            if (MyClient.language == "PL") {
+                putExtra(
+                    Intent.EXTRA_TEXT,
+                    "Dzień dobry,\n W załaczniku przesyłam fakturę.\n Pozdrawiam, \n$name"
+                )
+            } else putExtra(
+                Intent.EXTRA_TEXT,
+                "Guten Tag,\n\n Im Anhang sende ich die Rechnung fur die in der " +
+                        "Knechtstedenstr 14 Dusseldorf geleistete Arbeit\n\n Pozdrawiam, \n$name"
+            )
             putExtra(Intent.EXTRA_STREAM, attachment)
         }
         if (intent.resolveActivity(packageManager) != null) {
@@ -443,7 +451,7 @@ class InvoiceToPdf : AppCompatActivity() {
     }
 
     private fun brutto(unitPrice: Double, amount: Double, taxValue: Int): Double {
-        return (unitPrice * amount) + (unitPrice * amount) * (taxValue*0.01)
+        return (unitPrice * amount) + (unitPrice * amount) * (taxValue * 0.01)
     }
 
     private fun invoiceNameAfterDeletingWrongChars(name: String): String {

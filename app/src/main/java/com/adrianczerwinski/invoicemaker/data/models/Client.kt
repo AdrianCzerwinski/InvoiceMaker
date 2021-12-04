@@ -16,5 +16,6 @@ data class Client (
     var taxNumber: String,
     var streetNumber: String,
     var postalCode: String,
-    var city: String
+    var city: String,
+    var language: String
 ) : Parcelable

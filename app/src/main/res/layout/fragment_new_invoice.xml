@@ -84,7 +84,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/bt_choose_language"
+                android:id="@+id/bt_choose_currency"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
                 app:layout_constraintTop_toBottomOf="@id/choose_client_name">
 
                 <AutoCompleteTextView
-                    android:id="@+id/bt_choose_currency"
+                    android:id="@+id/bt_choose_currency2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/item_background"
@@ -116,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                app:layout_constraintTop_toBottomOf="@id/bt_choose_language">
+                app:layout_constraintTop_toBottomOf="@id/bt_choose_currency">
 
                 <AutoCompleteTextView
                     android:id="@+id/bt_vat"

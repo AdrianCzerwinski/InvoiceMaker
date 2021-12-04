@@ -66,7 +66,7 @@ class NewInvoice : Fragment() {
         val arrayAdapterLanguage =
             ArrayAdapter(requireContext(), R.layout.dropdonw_item_languages, languages)
         binding.btVat.setAdapter(arrayAdapterLanguage)
-        binding.btChooseCurrency.setAdapter(arrayAdapterCurrency)
+        binding.btChooseCurrency2.setAdapter(arrayAdapterCurrency)
         binding.unitset1.setAdapter(arrayAdapter)
         binding.unitset2.setAdapter(arrayAdapter)
         binding.unitset3.setAdapter(arrayAdapter)
@@ -159,7 +159,7 @@ class NewInvoice : Fragment() {
                     intent.putExtra("sellerContactData", contactSell)
                     intent.putExtra("theSum", sum)
                     intent.putExtra("VAT", binding.btVat.text.toString().toInt())
-                    intent.putExtra("Currency", binding.btChooseCurrency.text.toString())
+                    intent.putExtra("Currency", binding.btChooseCurrency2.text.toString())
                     intent.putParcelableArrayListExtra(
                         "data",
                         data as java.util.ArrayList<out Parcelable>
@@ -219,7 +219,7 @@ class NewInvoice : Fragment() {
                     binding.unitset1.text.toString(),
                 )
 
-                sum += (job1.price * job1.quantity) + vat * (job1.price * job1.quantity)
+                sum += (job1.price * job1.quantity) + vat*0.01*(job1.price * job1.quantity)
 
 
                 mInvoiceViewModel.insertJob(job1)
@@ -486,7 +486,7 @@ class NewInvoice : Fragment() {
                     binding.invoiceNumber.text.toString(),
                     jobsCount,
                     sum,
-                    binding.btChooseLanguage.toString(),
+                    binding.btChooseCurrency2.text.toString(),
                     binding.btVat.text.toString().toInt(),
                     MyClient
                 )
@@ -504,7 +504,7 @@ class NewInvoice : Fragment() {
 
 }
 
-var MyClient = Client(0, "Wybierz Klienta", "x", "x", "x", "x", "x", "x")
+var MyClient = Client(0, "Wybierz Klienta", "x", "x", "x", "x", "x", "x", "DE")
 
 // hope to delete it someday
 @Parcelize

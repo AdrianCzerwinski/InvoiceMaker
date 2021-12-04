@@ -20,15 +20,15 @@ class DeleteSingleClient : Fragment() {
     private var _binding: FragmentDeleteSingleClientBinding? = null
     private val binding get() = _binding!!
     private lateinit var mClientViewModel: ClientViewModel
-    private val args by navArgs<com.adrianczerwinski.invoicemaker.fragments.delete.DeleteSingleClientArgs>()
+    private val args by navArgs<DeleteSingleClientArgs>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentDeleteSingleClientBinding.inflate(inflater, container, false)
-        mClientViewModel = ViewModelProvider(this).get(ClientViewModel::class.java)
+        mClientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
 
         deleteClient()
 
