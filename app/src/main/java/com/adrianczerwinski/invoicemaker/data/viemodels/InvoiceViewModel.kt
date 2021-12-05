@@ -49,11 +49,11 @@ class InvoiceViewModel(application: Application): AndroidViewModel(application) 
         }
     }
 
-    fun getInvoiceWithJobs(invoice: Invoice){
-        viewModelScope.launch(Dispatchers.IO){
-            repository.getInvoiceWithJobs(invoice)
-        }
-    }
+//    suspend fun getJobsWithInvoice(invoice: Invoice){
+//        viewModelScope.launch(Dispatchers.IO){
+//            repository.getJobsWithInvoice(invoice)
+//        }
+//    }
 
 
 

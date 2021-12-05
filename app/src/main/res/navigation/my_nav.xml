@@ -96,7 +96,11 @@
     <fragment
         android:id="@+id/invoicesList"
         android:name="com.adrianczerwinski.invoicemaker.fragments.list.InvoicesList"
-        android:label="InvoicesList" />
+        android:label="InvoicesList" >
+        <action
+            android:id="@+id/action_invoicesList_to_deleteSingleInvoice"
+            app:destination="@id/deleteSingleInvoice" />
+    </fragment>
     <fragment
         android:id="@+id/updateSeller2"
         android:name="com.adrianczerwinski.invoicemaker.fragments.update.UpdateSeller"
@@ -104,5 +108,16 @@
         <action
             android:id="@+id/action_updateSeller2_to_finances"
             app:destination="@id/finances" />
+    </fragment>
+    <fragment
+        android:id="@+id/deleteSingleInvoice"
+        android:name="com.adrianczerwinski.invoicemaker.fragments.delete.DeleteSingleInvoice"
+        android:label="DeleteSingleInvoice" >
+        <action
+            android:id="@+id/action_deleteSingleInvoice_to_invoicesList"
+            app:destination="@id/invoicesList" />
+        <argument
+            android:name="currentInvoice"
+            app:argType="com.adrianczerwinski.invoicemaker.data.models.Invoice" />
     </fragment>
 </navigation>

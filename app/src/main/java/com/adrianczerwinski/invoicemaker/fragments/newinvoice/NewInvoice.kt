@@ -61,12 +61,16 @@ class NewInvoice : Fragment() {
         val arrayAdapter = ArrayAdapter(requireContext(), R.layout.dropdonw_item, units)
         val currencies = resources.getStringArray(R.array.currencies)
         val languages = resources.getStringArray(R.array.languages)
+        val payingTypes = resources.getStringArray(R.array.payings)
+        val arrayAdapterPaying =
+            ArrayAdapter(requireContext(), R.layout.dropdonw_item_payings, payingTypes)
         val arrayAdapterCurrency =
             ArrayAdapter(requireContext(), R.layout.dropdonw_item_currency, currencies)
         val arrayAdapterLanguage =
             ArrayAdapter(requireContext(), R.layout.dropdonw_item_languages, languages)
         binding.btVat.setAdapter(arrayAdapterLanguage)
         binding.btChooseCurrency2.setAdapter(arrayAdapterCurrency)
+        binding.btChoosePayment2.setAdapter(arrayAdapterPaying)
         binding.unitset1.setAdapter(arrayAdapter)
         binding.unitset2.setAdapter(arrayAdapter)
         binding.unitset3.setAdapter(arrayAdapter)
@@ -106,69 +110,71 @@ class NewInvoice : Fragment() {
 
                 if (vat == 100) {
                     Toast.makeText(context, "Wybierz wartość podatku.", Toast.LENGTH_SHORT).show()
-                } else
-                {
+                } else {
 
 
                     assignValues()
 
-                if (MyClient.name != "Clients Name" &&
-                    binding.jobname1.text!!.isNotEmpty() &&
-                    binding.price1.text.isNotEmpty() &&
-                    binding.amount1.text.isNotEmpty() &&
-                    binding.unitset1.text.isNotEmpty()
-                ) {
-                    val intent = Intent(activity, InvoiceToPdf::class.java)
+                    if (MyClient.name != "Clients Name" &&
+                        binding.jobname1.text!!.isNotEmpty() &&
+                        binding.price1.text.isNotEmpty() &&
+                        binding.amount1.text.isNotEmpty() &&
+                        binding.unitset1.text.isNotEmpty()
+                    ) {
+                        val intent = Intent(activity, InvoiceToPdf::class.java)
 
 
-                    val data: MutableList<Job> = ArrayList()
+                        val data: MutableList<Job> = ArrayList()
 
-                    data.add(job1)
-                    if (job2.jobName.isNotEmpty()) {
-                        data.add(job2)
-                    }
-                    if (job3.jobName.isNotEmpty()) {
-                        data.add(job3)
-                    }
-                    if (job4.jobName.isNotEmpty()) {
-                        data.add(job4)
-                    }
-                    if (job5.jobName.isNotEmpty()) {
-                        data.add(job5)
-                    }
-                    if (job6.jobName.isNotEmpty()) {
-                        data.add(job6)
-                    }
-                    if (job7.jobName.isNotEmpty()) {
-                        data.add(job7)
-                    }
-                    if (job8.jobName.isNotEmpty()) {
-                        data.add(job8)
-                    }
-                    if (job9.jobName.isNotEmpty()) {
-                        data.add(job9)
-                    }
-                    if (job10.jobName.isNotEmpty()) {
-                        data.add(job10)
-                    }
+                        data.add(job1)
+                        if (job2.jobName.isNotEmpty()) {
+                            data.add(job2)
+                        }
+                        if (job3.jobName.isNotEmpty()) {
+                            data.add(job3)
+                        }
+                        if (job4.jobName.isNotEmpty()) {
+                            data.add(job4)
+                        }
+                        if (job5.jobName.isNotEmpty()) {
+                            data.add(job5)
+                        }
+                        if (job6.jobName.isNotEmpty()) {
+                            data.add(job6)
+                        }
+                        if (job7.jobName.isNotEmpty()) {
+                            data.add(job7)
+                        }
+                        if (job8.jobName.isNotEmpty()) {
+                            data.add(job8)
+                        }
+                        if (job9.jobName.isNotEmpty()) {
+                            data.add(job9)
+                        }
+                        if (job10.jobName.isNotEmpty()) {
+                            data.add(job10)
+                        }
 
-                    intent.putExtra("jobsCount", jobsCount)
-                    intent.putExtra("sellerName", companySell)
-                    intent.putExtra("sellerAddress", addressSell)
-                    intent.putExtra("sellerTaxNumber", taxSell)
-                    intent.putExtra("sellerContactData", contactSell)
-                    intent.putExtra("theSum", sum)
-                    intent.putExtra("VAT", binding.btVat.text.toString().toInt())
-                    intent.putExtra("Currency", binding.btChooseCurrency2.text.toString())
-                    intent.putParcelableArrayListExtra(
-                        "data",
-                        data as java.util.ArrayList<out Parcelable>
-                    )
+                        intent.putExtra("jobsCount", jobsCount)
+                        intent.putExtra("sellerName", companySell)
+                        intent.putExtra("sellerAddress", addressSell)
+                        intent.putExtra("sellerTaxNumber", taxSell)
+                        intent.putExtra("sellerContactData", contactSell)
+                        intent.putExtra("theSum", sum)
+                        intent.putExtra("VAT", binding.btVat.text.toString().toInt())
+                        intent.putExtra("Currency", binding.btChooseCurrency2.text.toString())
+                        intent.putExtra("ProjectName", binding.etProjectName.text.toString())
+                        intent.putExtra("Paying", binding.btChoosePayment2.text.toString())
+                        intent.putExtra("InvoiceNumber", binding.invoiceNumber.text.toString())
+                        intent.putParcelableArrayListExtra(
+                            "data",
+                            data as java.util.ArrayList<out Parcelable>
+                        )
 
-                    startActivity(intent)
+                        startActivity(intent)
 
+                    }
                 }
-            }
             } else Toast.makeText(context, "Wpisz nr faktury.", Toast.LENGTH_LONG).show()
 
 
@@ -219,7 +225,7 @@ class NewInvoice : Fragment() {
                     binding.unitset1.text.toString(),
                 )
 
-                sum += (job1.price * job1.quantity) + vat*0.01*(job1.price * job1.quantity)
+                sum += (job1.price * job1.quantity) + vat * 0.01 * (job1.price * job1.quantity)
 
 
                 mInvoiceViewModel.insertJob(job1)
@@ -248,7 +254,7 @@ class NewInvoice : Fragment() {
                     binding.unitset2.text.toString()
                 )
 
-                sum += (job2.price * job2.quantity) + vat * (job2.price * job2.quantity)
+                sum += (job2.price * job2.quantity) + vat * 0.01 * (job2.price * job2.quantity)
 
                 mInvoiceViewModel.insertJob(job2)
 
@@ -276,7 +282,7 @@ class NewInvoice : Fragment() {
                     binding.unitset3.text.toString()
                 )
 
-                sum += (job3.price * job3.quantity) + vat * (job3.price * job3.quantity)
+                sum += (job3.price * job3.quantity) + vat * 0.01 * (job3.price * job3.quantity)
                 mInvoiceViewModel.insertJob(job3)
 
             } else
@@ -303,7 +309,7 @@ class NewInvoice : Fragment() {
                     binding.unitset4.text.toString()
                 )
 
-                sum += (job4.price * job4.quantity) + vat * (job4.price * job4.quantity)
+                sum += (job4.price * job4.quantity) + vat * 0.01 * (job4.price * job4.quantity)
                 mInvoiceViewModel.insertJob(job4)
 
             } else
@@ -330,7 +336,7 @@ class NewInvoice : Fragment() {
                     binding.unitset5.text.toString()
                 )
 
-                sum += (job5.price * job5.quantity) + vat * (job5.price * job5.quantity)
+                sum += (job5.price * job5.quantity) + vat * 0.01 * (job5.price * job5.quantity)
                 mInvoiceViewModel.insertJob(job5)
 
             } else
@@ -357,7 +363,7 @@ class NewInvoice : Fragment() {
                     binding.unitset7.text.toString()
                 )
 
-                sum += (job7.price * job7.quantity) + vat * (job7.price * job7.quantity)
+                sum += (job7.price * job7.quantity) + vat * 0.01 * (job7.price * job7.quantity)
 
                 mInvoiceViewModel.insertJob(job7)
 
@@ -384,7 +390,7 @@ class NewInvoice : Fragment() {
                     binding.amount6.text.toString().toInt(),
                     binding.unitset6.text.toString()
                 )
-                sum += (job6.price * job6.quantity) + vat * (job6.price * job6.quantity)
+                sum += (job6.price * job6.quantity) + vat * 0.01 * (job6.price * job6.quantity)
 
                 mInvoiceViewModel.insertJob(job6)
 
@@ -411,7 +417,7 @@ class NewInvoice : Fragment() {
                     binding.amount8.text.toString().toInt(),
                     binding.unitset8.text.toString()
                 )
-                sum += (job8.price * job8.quantity) + vat * (job8.price * job8.quantity)
+                sum += (job8.price * job8.quantity) + vat * 0.01 * (job8.price * job8.quantity)
 
                 mInvoiceViewModel.insertJob(job8)
 
@@ -438,7 +444,7 @@ class NewInvoice : Fragment() {
                     binding.amount9.text.toString().toInt(),
                     binding.unitset9.text.toString()
                 )
-                sum += (job9.price * job9.quantity) + vat * (job9.price * job9.quantity)
+                sum += (job9.price * job9.quantity) + vat * 0.01 * (job9.price * job9.quantity)
 
                 mInvoiceViewModel.insertJob(job9)
 
@@ -465,7 +471,7 @@ class NewInvoice : Fragment() {
                     binding.amount10.text.toString().toInt(),
                     binding.unitset10.text.toString()
                 )
-                sum += (job10.price * job10.quantity) + vat * (job10.price * job10.quantity)
+                sum += (job10.price * job10.quantity) + vat * 0.01 * (job10.price * job10.quantity)
 
                 mInvoiceViewModel.insertJob(job10)
 
@@ -482,13 +488,15 @@ class NewInvoice : Fragment() {
         if (MyClient.name != "Clients Name") {
             val newInvoice =
                 Invoice(
-                    0,
+//                    0,
                     binding.invoiceNumber.text.toString(),
                     jobsCount,
                     sum,
                     binding.btChooseCurrency2.text.toString(),
                     binding.btVat.text.toString().toInt(),
-                    MyClient
+                    MyClient,
+                    binding.etProjectName.text.toString(),
+                    binding.btChoosePayment2.text.toString()
                 )
             mInvoiceViewModel.insertInvoice(newInvoice)
         } else

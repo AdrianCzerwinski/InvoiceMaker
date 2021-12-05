@@ -25,8 +25,8 @@ class InvoiceRepository(private val invoiceDao: InvoiceDao) {
         invoiceDao.deleteInvoice(invoice)
     }
 
-    suspend fun getInvoiceWithJobs(invoice: Invoice){
-        invoiceDao.getInvoiceWithJobs(invoice.invoiceNumber)
-    }
+//    suspend fun getJobsWithInvoice(invoice: Invoice){
+//        invoiceDao.getJobsWithInvoice(invoice.invoiceNumber)
+//    }
 
 }

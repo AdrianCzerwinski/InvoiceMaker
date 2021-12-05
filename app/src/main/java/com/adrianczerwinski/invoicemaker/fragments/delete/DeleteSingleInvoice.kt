@@ -12,15 +12,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.adrianczerwinski.invoicemaker.R
 import com.adrianczerwinski.invoicemaker.data.viemodels.ClientViewModel
+import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
 import com.adrianczerwinski.invoicemaker.databinding.FragmentDeleteSingleClientBinding
 
 
-class DeleteSingleClient : Fragment() {
+class DeleteSingleInvoice : Fragment() {
 
     private var _binding: FragmentDeleteSingleClientBinding? = null
     private val binding get() = _binding!!
-    private lateinit var mClientViewModel: ClientViewModel
-    private val args by navArgs<DeleteSingleClientArgs>()
+    private lateinit var mInvoiceViewModel: InvoiceViewModel
+    private val args by navArgs<DeleteSingleInvoiceArgs>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -28,32 +29,31 @@ class DeleteSingleClient : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentDeleteSingleClientBinding.inflate(inflater, container, false)
-        mClientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
+        mInvoiceViewModel = ViewModelProvider(this)[InvoiceViewModel::class.java]
 
-        deleteClient()
+        deleteInvoice()
 
         return binding.root
     }
 
-    private fun deleteClient() {
+    private fun deleteInvoice() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setPositiveButton("Tak") { _, _ ->
-            mClientViewModel.deleteClient(args.currentClient)
-            findNavController().navigate(R.id.action_deleteSingleClient_to_clientsList)
+            mInvoiceViewModel.deleteInvoice(args.currentInvoice)
+            findNavController().navigate(R.id.action_deleteSingleInvoice_to_invoicesList)
             Toast.makeText(
                 requireContext(),
-                "Pomyślnie usunięto klienta ${args.currentClient.name}.",
+                "Pomyślnie usunięto fakturę ${args.currentInvoice.invoiceNumber}.",
                 Toast.LENGTH_SHORT
             ).show()
         }
         builder.setNegativeButton("Nie") { _, _ ->
-            findNavController().navigate((R.id.action_deleteSingleClient_to_clientsList))
+            findNavController().navigate(R.id.action_deleteSingleInvoice_to_invoicesList)
         }
 
-        builder.setTitle("Usuwanie Klienta.")
+        builder.setTitle("Usuwanie Faktury.")
         builder.setMessage(
-            "Czy na pewno chcesz usunąć firmę ${args.currentClient.name} " +
-                    "z bazy klientów? "
+            "Czy na pewno chcesz usunąć fakturę ${args.currentInvoice.invoiceNumber} ?"
         )
         builder.create().show()
     }

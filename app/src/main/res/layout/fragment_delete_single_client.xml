@@ -3,4 +3,5 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.delete.DeleteSingleClient"/>
+    tools:context=".fragments.delete.DeleteSingleClient"
+    android:background="@drawable/google_pixel_5__1"/>

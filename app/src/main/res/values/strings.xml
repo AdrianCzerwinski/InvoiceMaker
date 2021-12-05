@@ -17,7 +17,7 @@
     <string name="invoice_number">Numer Faktury</string>
     <string name="adding_new_invoice">Adding new invoice</string>
     <string name="numer_faktury">Numer Faktury</string>
-    <string name="wybierz_klienta">Wybierz Klienta</string>
+    <string name="wybierz_klienta">Dodaj Kienta</string>
     <string name="wybierz_walut">Wybierz Walutę</string>
     <string name="vat">VAT</string>
     <string name="ilo">Ilość</string>
@@ -26,6 +26,9 @@
     <string name="cena">Cena</string>
     <string name="wybierz_j_zyk_fv">Wybierz język FV</string>
     <string name="wybierz_stawk_vat">Wybierz stawkę VAT</string>
+    <string name="zapisz">Zapisz!</string>
+    <string name="nazwa_projektu">Nazwa Projektu</string>
+    <string name="spos_b_zap_aty">Sposób zapłaty</string>
     <!-- TODO: Remove or change this placeholder text -->
 
     <string-array name="units">
@@ -44,6 +47,13 @@
         <item>"0"</item>
         <item>"7"</item>
         <item>"19"</item>
+    </string-array>
+    <string-array name="payings">
+        <item>"Gotówka"</item>
+        <item>"7 dni"</item>
+        <item>"14 dni"</item>
+        <item>"21 dni"</item>
+        <item>"30 dni"</item>
     </string-array>
 
 </resources>

@@ -12,7 +12,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.adrianczerwinski.invoicemaker.data.models.Job
+import com.adrianczerwinski.invoicemaker.data.models.Seller
+import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
 import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.ActivityInvoiceToPdfBinding
 import com.adrianczerwinski.invoicemaker.fragments.newinvoice.Common
@@ -31,6 +34,7 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -39,14 +43,10 @@ import java.util.*
 
 class InvoiceToPdf : AppCompatActivity() {
     private lateinit var binding: ActivityInvoiceToPdfBinding
-    var cellsCount = 10
     private lateinit var mSellerViewModel: SellerViewModel
+    private lateinit var companySellForAlreadyCreatedInvoice: String
+    var cellsCount = 10
 
-
-    // Seller:
-
-
-    // Buyer:
 
     var companyBuy = MyClient.name
     var addressBuy = MyClient.streetNumber + ", " + MyClient.postalCode + " " + MyClient.city
@@ -59,80 +59,120 @@ class InvoiceToPdf : AppCompatActivity() {
         binding = ActivityInvoiceToPdfBinding.inflate(layoutInflater)
         mSellerViewModel = ViewModelProvider(this)[SellerViewModel::class.java]
 
+
+
         val intent: Intent = intent
-        val list: ArrayList<Job> = intent.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
-        val invoiceNo = list.first().invoiceNumber
+        val invoiceNo = intent.getStringExtra("InvoiceNumber").toString()
         val invoiceNoFile = invoiceNameAfterDeletingWrongChars(invoiceNo)
         val fileName = "${invoiceNoFile}.pdf"
         val pdfView: PDFView = binding.pdfView
+        val paths = File(Common.getAppPath(this@InvoiceToPdf) + fileName)
+
+        lifecycleScope.launch {
+            val myData: Seller? = mSellerViewModel.getMySellerData()
+            if (myData != null) {
+                companySellForAlreadyCreatedInvoice = myData.name
+            }
+        }
 
         val companySell = intent.getStringExtra("sellerName").toString()
+        val projektName = intent.getStringExtra("ProjectName").toString()
         val addressSell = intent.getStringExtra("sellerAddress").toString()
         val taxNumberSell = intent.getStringExtra("sellerTaxNumber").toString()
         val contactSell = intent.getStringExtra("sellerContactData").toString()
 
 
-        Dexter.withActivity(this)
-            .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            .withListener(object : PermissionListener {
-                override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-                    createPDFFile(
-                        Common.getAppPath(this@InvoiceToPdf) + fileName,
-                        companySell,
-                        contactSell,
-                        addressSell,
-                        taxNumberSell
-                    )
-                    binding.btnCreatePdf.setOnClickListener {
-                        printPDF()
+        if (paths.exists()) {
+
+            pdfView.fromFile(paths).load()
+            binding.btnCreatePdf.setOnClickListener {
+                printPDF(fileName)
+            }
+            binding.btSendInvoiceViaEmail.setOnClickListener {
+
+                val attachment =
+                    File(Common.getAppPath(this@InvoiceToPdf) + fileName).toUri()
+                composeEmail(
+                    emailBuy,
+                    invoiceNo,
+                    attachment,
+                    companySellForAlreadyCreatedInvoice,
+                    projektName
+                )
+            }
+        }
+
+        else {
+
+            Dexter.withActivity(this)
+                .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .withListener(object : PermissionListener {
+                    override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                        createPDFFile(
+                            Common.getAppPath(this@InvoiceToPdf) + fileName,
+                            companySell,
+                            contactSell,
+                            addressSell,
+                            taxNumberSell
+                        )
+                        binding.btnCreatePdf.setOnClickListener {
+                            printPDF(fileName)
+                        }
+                        binding.btSendInvoiceViaEmail.setOnClickListener {
+                            val attachment =
+                                File(Common.getAppPath(this@InvoiceToPdf) + fileName).toUri()
+                            composeEmail(
+                                emailBuy,
+                                invoiceNo,
+                                attachment,
+                                companySell,
+                                projektName
+                            )
+                        }
+
                     }
-                    binding.btSendInvoiceViaEmail.setOnClickListener {
-                        val attachment =
-                            File(Common.getAppPath(this@InvoiceToPdf) + fileName).toUri()
-                        composeEmail(emailBuy, invoiceNo, attachment, companySell)
+
+                    override fun onPermissionRationaleShouldBeShown(
+                        permission: PermissionRequest?,
+                        token: PermissionToken?
+                    ) {
+
                     }
 
-                }
+                    override fun onPermissionDenied(response: PermissionDeniedResponse?) {
 
-                override fun onPermissionRationaleShouldBeShown(
-                    permission: PermissionRequest?,
-                    token: PermissionToken?
-                ) {
-
-                }
-
-                override fun onPermissionDenied(response: PermissionDeniedResponse?) {
-
-                }
+                    }
 
 
-            })
-            .check()
+                })
+                .check()
 
 
-        Dexter.withActivity(this)
-            .withPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-            .withListener(object : PermissionListener {
-                override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-                    val path = File(Common.getAppPath(this@InvoiceToPdf) + fileName)
-                    pdfView.fromFile(path).load()
+            Dexter.withActivity(this)
+                .withPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(object : PermissionListener {
+                    override fun onPermissionGranted(response: PermissionGrantedResponse?) {
+                        val path = File(Common.getAppPath(this@InvoiceToPdf) + fileName)
+                        pdfView.fromFile(path).load()
 
-                }
+                    }
 
-                override fun onPermissionRationaleShouldBeShown(
-                    permission: PermissionRequest?,
-                    token: PermissionToken?
-                ) {
+                    override fun onPermissionRationaleShouldBeShown(
+                        permission: PermissionRequest?,
+                        token: PermissionToken?
+                    ) {
 
-                }
+                    }
 
-                override fun onPermissionDenied(response: PermissionDeniedResponse?) {
+                    override fun onPermissionDenied(response: PermissionDeniedResponse?) {
 
-                }
+                    }
 
 
-            })
-            .check()
+                })
+                .check()
+
+        }
 
         val view = binding.root
         setContentView(view)
@@ -178,10 +218,9 @@ class InvoiceToPdf : AppCompatActivity() {
             val titleStyle = Font(fontBold, 30.0f, Font.NORMAL, BaseColor.BLACK)
             val cellStyle = Font(fontNormal, 14f, Font.NORMAL, BaseColor.BLACK)
             val subtitleStyle = Font(fontNormal, 20f, Font.NORMAL, BaseColor.BLACK)
-            val descriptionStyle = Font(fontNormal, 12f, Font.NORMAL, BaseColor.BLACK)
 
             val intent: Intent = intent
-            var list: ArrayList<Job> =
+            val list: ArrayList<Job> =
                 intent.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
             val invoiceNo = list.first().invoiceNumber
 
@@ -190,32 +229,62 @@ class InvoiceToPdf : AppCompatActivity() {
             addLineSeparatorThick(document)
             addLineSpace(document)
 
+            //Project name
+
+            val projectName = intent.getStringExtra("ProjectName")
+            addLineSpace(document)
+            addNewItem(document, "Projektname: $projectName", Element.ALIGN_LEFT, subtitleStyle)
+            addLineSpace(document)
+
             //Seller and Buyer
-            addLineSpace(document)
-            addNewItem(document, "Varkäufer:", Element.ALIGN_LEFT, subtitleStyle)
-            addLineSpace(document)
-            addNewItem(document, companySell, Element.ALIGN_LEFT, descriptionStyle)
-            addNewItem(document, addressSell, Element.ALIGN_LEFT, descriptionStyle)
-            addNewItem(document, contactSell, Element.ALIGN_LEFT, descriptionStyle)
-            addNewItem(
-                document,
-                taxNumberSell,
-                Element.ALIGN_LEFT,
-                descriptionStyle
-            )
-            addLineSpace(document)
-            addLineSpace(document)
-            addNewItem(document, "Käufer:", Element.ALIGN_LEFT, subtitleStyle)
-            addNewItem(document, companyBuy, Element.ALIGN_LEFT, descriptionStyle)
-            addNewItem(document, addressBuy, Element.ALIGN_LEFT, descriptionStyle)
-            addNewItem(
-                document,
-                "Steuernummer: $taxNumberBuy",
-                Element.ALIGN_LEFT,
-                descriptionStyle
-            )
-            addLineSpace(document)
-            addLineSpace(document)
+
+            val columnWidths2 = floatArrayOf(32f, 32f)
+            val table3 = PdfPTable(columnWidths2)
+
+            table3.widthPercentage = 100f
+            table3.horizontalAlignment = Element.ALIGN_CENTER
+            table3.spacingBefore = 20.0f
+            table3.defaultCell.border = 0
+            table3.defaultCell.setPadding(4f)
+
+            var mainCell = PdfPCell(Phrase("Verkäufer: ", subtitleStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase("Käufer: ", subtitleStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase(companySell, cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase(companyBuy, cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase(addressSell, cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase(addressBuy, cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase("Steuernummer: $taxNumberSell", cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase("Steuernummer: $taxNumberBuy", cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            mainCell = PdfPCell(Phrase(contactSell, cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table3.addCell(mainCell)
+
+            document.add(table3)
+
             addLineSeparatorThick(document)
             addLineSpace(document)
             addLineSpace(document)
@@ -240,7 +309,7 @@ class InvoiceToPdf : AppCompatActivity() {
             val brutto = "Preis inkl. MwSt."
             val currency = "Währung"
 
-            var mainCell = PdfPCell(Phrase(lp, cellStyle))
+            mainCell = PdfPCell(Phrase(lp, cellStyle))
             mainCell.border = PdfPCell.NO_BORDER
             table1.addCell(mainCell)
 
@@ -366,15 +435,8 @@ class InvoiceToPdf : AppCompatActivity() {
 
     }
 
-    private fun printPDF() {
+    private fun printPDF(fileNames: String) {
         val printManager = getSystemService(Context.PRINT_SERVICE) as PrintManager
-        val intents: Intent = intent
-        val lists: ArrayList<Job> =
-            intents.getParcelableArrayListExtra<Job>("data") as ArrayList<Job>
-        val invoiceNos = lists.first().invoiceNumber
-        val invoiceNoFiles = invoiceNameAfterDeletingWrongChars(invoiceNos)
-        val fileNames = "${invoiceNoFiles}.pdf"
-
 
         try {
             val printAdapter = PdfDocumentAdapter(
@@ -423,8 +485,8 @@ class InvoiceToPdf : AppCompatActivity() {
         document.add(p)
     }
 
-    fun composeEmail(addresses: Array<String>, subject: String, attachment: Uri, name: String) {
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
+    fun composeEmail(addresses: Array<String>, subject: String?, attachment: Uri, name: String, projektName: String) {
+        val intentMail = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, addresses)
             putExtra(Intent.EXTRA_SUBJECT, subject)
@@ -436,12 +498,12 @@ class InvoiceToPdf : AppCompatActivity() {
             } else putExtra(
                 Intent.EXTRA_TEXT,
                 "Guten Tag,\n\n Im Anhang sende ich die Rechnung fur die in der " +
-                        "Knechtstedenstr 14 Dusseldorf geleistete Arbeit\n\n Pozdrawiam, \n$name"
+                        "$projektName geleistete Arbeit\n\n Pozdrawiam, \n$name"
             )
             putExtra(Intent.EXTRA_STREAM, attachment)
         }
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivity(intent)
+        if (intentMail.resolveActivity(packageManager) != null) {
+            startActivity(intentMail)
         }
     }
 

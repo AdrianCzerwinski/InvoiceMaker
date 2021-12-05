@@ -16,7 +16,7 @@ interface InvoiceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addJob(job: Job)
 
-    @Query("SELECT * FROM invoices_table ORDER BY id ASC")
+    @Query("SELECT * FROM invoices_table ORDER BY invoiceNumber DESC")
     fun readAllInvoices(): LiveData<List<Invoice>>
 
     @Update()
@@ -24,13 +24,9 @@ interface InvoiceDao {
 
     @Delete
     suspend fun deleteInvoice(invoice: Invoice)
-
-    @Transaction
-    @Query("SELECT * FROM invoices_table WHERE invoiceNumber = :invoiceNumber ORDER BY id ASC" )
-    suspend fun getInvoiceWithJobs(invoiceNumber: String): List<InvoiceWithJobs>
-
+//
 //    @Transaction
-//    @Query("SELECT * FROM jobs_table WHERE invoiceNumber = :invoiceNumber ORDER BY jobId ASC" )
+//    @Query("SELECT * FROM jobs_table WHERE invoiceNumber = :invoiceNumber " )
 //    suspend fun getJobsWithInvoice(invoiceNumber: String): List<InvoiceWithJobs>
 
 

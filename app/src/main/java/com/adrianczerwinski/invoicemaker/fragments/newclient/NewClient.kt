@@ -41,23 +41,23 @@ class NewClient : Fragment() {
 
     private fun insertDataToDatabase() {
         val name1 = binding.etCompName.text.toString()
-        val email1 = binding.etEmail.text.toString()
-        val phone1 = binding.etPhone.text.toString()
-        val taxNumber1 = binding.etNip.text.toString()
-        val streetNumber1 = binding.etUlicainumer.text.toString()
-        val postalCode1 = binding.etPostalCode.text.toString()
-        val city1 = binding.etCity.text.toString()
+        val email1 = binding.etEmail2.text.toString()
+        val phone1 = binding.etPhone2.text.toString()
+        val taxNumber1 = binding.etNip2.text.toString()
+        val streetNumber1 = binding.etUlicainumer2.text.toString()
+        val postalCode1 = binding.etPostalCode2.text.toString()
+        val city1 = binding.etCity2.text.toString()
 
-        binding.etEmail.addTextChangedListener(object : TextWatcher {
+        binding.etEmail2.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                if (email1.isEmpty()) binding.warnEmail.isVisible = true
+                if (email1.isEmpty()) {binding.warnEmail.isVisible = true}
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 binding.warnEmail.text = "Niepoprawny e-mail"
-                for (i: Char in binding.etEmail.text) {
+                binding.etEmail2.text!!.forEach { i: Char ->
                     if (i == '@') {
                         binding.warnEmail.text = "Poprawny e-mail"
                         binding.warnEmail.isVisible = true

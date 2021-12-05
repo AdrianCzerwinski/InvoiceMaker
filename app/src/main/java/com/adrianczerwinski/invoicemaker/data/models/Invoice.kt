@@ -10,8 +10,7 @@ import kotlinx.parcelize.Parcelize
 @Entity(tableName = "invoices_table")
 @Parcelize
 data class Invoice(
-    @PrimaryKey(autoGenerate = true)
-    var invoiceId: Int,
+    @PrimaryKey(autoGenerate = false)
     var invoiceNumber: String,
     var cells: Int,
     var sum: Double,
@@ -19,6 +18,8 @@ data class Invoice(
     val vat: Int,
     @Embedded
     var clientName: Client,
+    var projectName: String,
+    var payingTime: String
 
     ) : Parcelable
 

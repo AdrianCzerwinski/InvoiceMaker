@@ -11,7 +11,7 @@ data class InvoiceWithJobs (
         parentColumn = "invoiceNumber",
         entityColumn = "invoiceNumber"
     )
-    val jobs: List<Job>?
+    val jobs: List<Job>
 
 
     )

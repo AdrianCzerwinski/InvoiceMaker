@@ -25,37 +25,33 @@ class UpdaterFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         _binding = FragmentUpdaterBinding.inflate(inflater, container, false)
 
-        binding.etUpdateCity.setText(args.currentClient.city)
-        binding.etUpdateCompName.setText(args.currentClient.name)
-        binding.etUpdateNip.setText(args.currentClient.taxNumber)
-        binding.etUpdateEmail.setText(args.currentClient.email)
-        binding.etUpdatePostalCode.setText(args.currentClient.postalCode)
-        binding.etUpdatePhone.setText(args.currentClient.phone)
-        binding.etUpdateUlicainumer.setText(args.currentClient.streetNumber)
+        binding.etCity2.setText(args.currentClient.city)
+        binding.etCompName.setText(args.currentClient.name)
+        binding.etNip2.setText(args.currentClient.taxNumber)
+        binding.etEmail2.setText(args.currentClient.email)
+        binding.etPostalCode2.setText(args.currentClient.postalCode)
+        binding.etPhone2.setText(args.currentClient.phone)
+        binding.etUlicainumer2.setText(args.currentClient.streetNumber)
 
         mClientViewModel = ViewModelProvider(this)[ClientViewModel::class.java]
 
-        binding.butUpdateNewClient.setOnClickListener {
+        binding.butConfirmNewClient.setOnClickListener {
             updateItem()
         }
-
-        // Adding Menu option - Delete Single Client
-        setHasOptionsMenu(true)
 
         return binding.root
     }
 
     private fun updateItem() {
-        val name1 = binding.etUpdateCompName.text.toString()
-        val email1 = binding.etUpdateEmail.text.toString()
-        val phone1 = binding.etUpdatePhone.text.toString()
-        val taxNumber1 = binding.etUpdateNip.text.toString()
-        val streetNumber1 = binding.etUpdateUlicainumer.text.toString()
-        val postalCode1 = binding.etUpdatePostalCode.text.toString()
-        val city1 = binding.etUpdateCity.text.toString()
+        val name1 = binding.etCompName.text.toString()
+        val email1 = binding.etEmail2.text.toString()
+        val phone1 = binding.etPhone2.text.toString()
+        val taxNumber1 = binding.etNip2.text.toString()
+        val streetNumber1 = binding.etUlicainumer2.text.toString()
+        val postalCode1 = binding.etPostalCode2.text.toString()
+        val city1 = binding.etCity2.text.toString()
         val language1 = "DE"
 
         if (inputCheck(name1, email1, taxNumber1, streetNumber1, postalCode1, city1, language1)) {
@@ -107,34 +103,6 @@ class UpdaterFragment : Fragment() {
         inflater.inflate(R.menu.delete_menu, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.bin) {
-            deleteClient()
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-
-    private fun deleteClient() {
-        val builder = AlertDialog.Builder(requireContext())
-        builder.setPositiveButton("Yes") { _, _ ->
-            mClientViewModel.deleteClient(args.currentClient)
-            findNavController().navigate(R.id.action_updaterFragment_to_clientsList)
-            Toast.makeText(
-                requireContext(),
-                "Pomyślnie usunięto firmę ${args.currentClient.name}.",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-        builder.setNegativeButton("No") { _, _ -> }
-
-        builder.setTitle("Usuwanie Klienta.")
-        builder.setMessage(
-            "Czy na pewno chcesz usunąć firmę ${args.currentClient.name} " +
-                    "z bazy klientów? "
-        )
-        builder.create().show()
-    }
 
 
 }
