@@ -44,8 +44,7 @@ class MainActivity : AppCompatActivity() {
             val navHostFragment = supportFragmentManager
                 .findFragmentById(R.id.navHostFragment) as NavHostFragment
             navController = navHostFragment.navController
-//            val appBarConfiguration = AppBarConfiguration(navController.graph)
-//            setupActionBarWithNavController(navController, appBarConfiguration)
+
 
         } else {
             val editor = preferences.edit()

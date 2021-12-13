@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adrianczerwinski.invoicemaker.R
@@ -25,6 +27,12 @@ class ClientsList : Fragment() {
     ): View {
         // Inflating the layout:
         _binding = FragmentClientsListBinding.inflate(inflater, container, false)
+
+        val backpress = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, true) {
+            findNavController().navigate(R.id.action_clientsList_to_newInvoice)
+        }
+        backpress.isEnabled = true
+
         binding.buttonNewClient.setOnClickListener {
             findNavController().navigate(R.id.action_clientsList_to_newClient)
         }

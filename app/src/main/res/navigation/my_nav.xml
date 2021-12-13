@@ -51,6 +51,9 @@
         <action
             android:id="@+id/action_clientsList_to_deleteSingleClient"
             app:destination="@id/deleteSingleClient" />
+        <action
+            android:id="@+id/action_clientsList_to_newInvoice"
+            app:destination="@id/newInvoice" />
     </fragment>
     <fragment
         android:id="@+id/newClient"
@@ -100,6 +103,9 @@
         <action
             android:id="@+id/action_invoicesList_to_deleteSingleInvoice"
             app:destination="@id/deleteSingleInvoice" />
+        <action
+            android:id="@+id/action_invoicesList_to_finances"
+            app:destination="@id/finances" />
     </fragment>
     <fragment
         android:id="@+id/updateSeller2"

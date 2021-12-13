@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import com.adrianczerwinski.invoicemaker.data.models.Job
 import com.adrianczerwinski.invoicemaker.data.models.Seller
 import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
@@ -58,7 +59,6 @@ class InvoiceToPdf : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityInvoiceToPdfBinding.inflate(layoutInflater)
         mSellerViewModel = ViewModelProvider(this)[SellerViewModel::class.java]
-
 
 
         val intent: Intent = intent

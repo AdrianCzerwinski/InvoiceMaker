@@ -5,8 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.adrianczerwinski.invoicemaker.R
 
 import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
 
@@ -23,6 +26,11 @@ class InvoicesList : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentInvoicesListBinding.inflate(inflater, container, false)
+
+        val backpress = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, true) {
+            findNavController().navigate(R.id.action_invoicesList_to_finances)
+        }
+        backpress.isEnabled = true
 
         // RecyclerView
         val adapter = InvoiceListAdaptor()

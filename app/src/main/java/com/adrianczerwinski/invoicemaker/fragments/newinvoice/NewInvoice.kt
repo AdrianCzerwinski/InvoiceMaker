@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -56,6 +57,13 @@ class NewInvoice : Fragment() {
         mInvoiceViewModel = ViewModelProvider(this)[InvoiceViewModel::class.java]
         mSellerViewModel = ViewModelProvider(this)[SellerViewModel::class.java]
         binding.chooseClientName.text = MyClient.name
+
+        val backpress = requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, true) {
+            findNavController().navigate(R.id.action_newInvoice_to_finances)
+        }
+        backpress.isEnabled = true
+
+
 
         val units = resources.getStringArray(R.array.units)
         val arrayAdapter = ArrayAdapter(requireContext(), R.layout.dropdonw_item, units)
