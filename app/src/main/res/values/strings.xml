@@ -29,6 +29,7 @@
     <string name="zapisz">Zapisz!</string>
     <string name="nazwa_projektu">Nazwa Projektu</string>
     <string name="spos_b_zap_aty">Sposób zapłaty</string>
+    <string name="uwagaPodatek">Hiermit erlaube ich mir folgende Rechnung für Bauleistungen zu stellen.Die Umsatzsteuer für diese Leistung schuldet nach §13b UStG der Leistungsempfänger.</string>
     <!-- TODO: Remove or change this placeholder text -->
 
     <string-array name="units">

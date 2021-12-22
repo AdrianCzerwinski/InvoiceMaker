@@ -37,13 +37,6 @@ class ClientsList : Fragment() {
             findNavController().navigate(R.id.action_clientsList_to_newClient)
         }
 
-//        val onBackPressedCallback = object : OnBackPressedCallback(true) {
-//            override fun handleOnBackPressed() {
-//                findNavController().navigate(R.id.action_clientsList2_to_newInvoice)
-//            }
-//        }
-//        requireActivity().getOnBackPressedDispatcher().addCallback(viewLifecycleOwner, onBackPressedCallback)
-
         // Setting RecyclerView
         val adapter = ClientListAdapter()
         val recyclerView = binding.recyclerClientsList

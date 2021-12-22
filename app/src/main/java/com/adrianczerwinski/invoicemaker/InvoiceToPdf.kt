@@ -13,10 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
 import com.adrianczerwinski.invoicemaker.data.models.Job
 import com.adrianczerwinski.invoicemaker.data.models.Seller
-import com.adrianczerwinski.invoicemaker.data.viemodels.InvoiceViewModel
 import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.ActivityInvoiceToPdfBinding
 import com.adrianczerwinski.invoicemaker.fragments.newinvoice.Common
@@ -35,10 +33,14 @@ import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -46,6 +48,9 @@ class InvoiceToPdf : AppCompatActivity() {
     private lateinit var binding: ActivityInvoiceToPdfBinding
     private lateinit var mSellerViewModel: SellerViewModel
     private lateinit var companySellForAlreadyCreatedInvoice: String
+    private lateinit var iban: String
+    private lateinit var blz: String
+    private lateinit var bic: String
     var cellsCount = 10
 
 
@@ -68,10 +73,13 @@ class InvoiceToPdf : AppCompatActivity() {
         val pdfView: PDFView = binding.pdfView
         val paths = File(Common.getAppPath(this@InvoiceToPdf) + fileName)
 
-        lifecycleScope.launch {
+        GlobalScope.launch {
             val myData: Seller? = mSellerViewModel.getMySellerData()
             if (myData != null) {
                 companySellForAlreadyCreatedInvoice = myData.name
+                iban = myData.iban
+                blz = myData.blz
+                bic = myData.bic
             }
         }
 
@@ -80,6 +88,7 @@ class InvoiceToPdf : AppCompatActivity() {
         val addressSell = intent.getStringExtra("sellerAddress").toString()
         val taxNumberSell = intent.getStringExtra("sellerTaxNumber").toString()
         val contactSell = intent.getStringExtra("sellerContactData").toString()
+        val cityOnInvoice = intent.getStringExtra("city").toString()
 
 
         if (paths.exists()) {
@@ -100,9 +109,7 @@ class InvoiceToPdf : AppCompatActivity() {
                     projektName
                 )
             }
-        }
-
-        else {
+        } else {
 
             Dexter.withActivity(this)
                 .withPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -113,7 +120,11 @@ class InvoiceToPdf : AppCompatActivity() {
                             companySell,
                             contactSell,
                             addressSell,
-                            taxNumberSell
+                            taxNumberSell,
+                            cityOnInvoice,
+                            iban,
+                            blz,
+                            bic
                         )
                         binding.btnCreatePdf.setOnClickListener {
                             printPDF(fileName)
@@ -183,7 +194,11 @@ class InvoiceToPdf : AppCompatActivity() {
         companySell: String,
         contactSell: String,
         addressSell: String,
-        taxNumberSell: String
+        taxNumberSell: String,
+        cityOnInvoice: String,
+        iban: String,
+        blz: String,
+        bic: String
     ) {
         if (File(path).exists())
             File(path).delete()
@@ -229,11 +244,20 @@ class InvoiceToPdf : AppCompatActivity() {
             addLineSeparatorThick(document)
             addLineSpace(document)
 
+            // Data i miejscowość
+            val calendarAndTime = LocalDateTime.now()
+            val dateToday = calendarAndTime.format(DateTimeFormatter.ofPattern("y-M-d")).toString()
+
+            addLineSpace(document)
+            addNewItem(document, "$cityOnInvoice, $dateToday ", Element.ALIGN_RIGHT, cellStyle)
+            addLineSpace(document)
+
+
             //Project name
 
             val projectName = intent.getStringExtra("ProjectName")
             addLineSpace(document)
-            addNewItem(document, "Projektname: $projectName", Element.ALIGN_LEFT, subtitleStyle)
+            addNewItem(document, "Projektname:  $projectName", Element.ALIGN_LEFT, subtitleStyle)
             addLineSpace(document)
 
             //Seller and Buyer
@@ -271,7 +295,7 @@ class InvoiceToPdf : AppCompatActivity() {
             mainCell.border = PdfPCell.NO_BORDER
             table3.addCell(mainCell)
 
-            mainCell = PdfPCell(Phrase("Steuernummer: $taxNumberSell", cellStyle))
+            mainCell = PdfPCell(Phrase(taxNumberSell, cellStyle))
             mainCell.border = PdfPCell.NO_BORDER
             table3.addCell(mainCell)
 
@@ -292,7 +316,7 @@ class InvoiceToPdf : AppCompatActivity() {
             // Adding column titles with style properties
             // plus setting width of columns
 
-            val columnWidths = floatArrayOf(2f, 10f, 3f, 5f, 5f, 3f, 3f)
+            val columnWidths = floatArrayOf(2f, 10f, 3f, 2f, 3f, 3f, 6f, 3f)
             val table1 = PdfPTable(columnWidths)
 
             table1.widthPercentage = 100f
@@ -308,6 +332,7 @@ class InvoiceToPdf : AppCompatActivity() {
             val price = "Einzelpreis"
             val brutto = "Preis inkl. MwSt."
             val currency = "Währung"
+            val vatDE = "MwSt."
 
             mainCell = PdfPCell(Phrase(lp, cellStyle))
             mainCell.border = PdfPCell.NO_BORDER
@@ -328,6 +353,12 @@ class InvoiceToPdf : AppCompatActivity() {
             mainCell = PdfPCell(Phrase(price, cellStyle))
             mainCell.border = PdfPCell.NO_BORDER
             table1.addCell(mainCell)
+
+
+            mainCell = PdfPCell(Phrase(vatDE, cellStyle))
+            mainCell.border = PdfPCell.NO_BORDER
+            table1.addCell(mainCell)
+
 
             mainCell = PdfPCell(Phrase(brutto, cellStyle))
             mainCell.border = PdfPCell.NO_BORDER
@@ -355,6 +386,7 @@ class InvoiceToPdf : AppCompatActivity() {
             val sum = intent.getDoubleExtra("theSum", 0.00)
             val taxValue = intent.getIntExtra("VAT", 0)
             val currencyVar = intent.getStringExtra("Currency")
+            val payingTime = intent.getStringExtra("Paying")
 
             for (i in 0 until cellsCount) {
 
@@ -382,6 +414,13 @@ class InvoiceToPdf : AppCompatActivity() {
                 mainCellVar.border = PdfPCell.NO_BORDER
                 table2.addCell(mainCellVar)
                 addLineSpace(document)
+
+                mainCellVar = PdfPCell(Phrase(taxValue.toString(), cellStyle))
+                mainCellVar.border = PdfPCell.NO_BORDER
+                table2.addCell(mainCellVar)
+                addLineSpace(document)
+
+
 
                 mainCellVar = PdfPCell(
                     Phrase(
@@ -418,6 +457,49 @@ class InvoiceToPdf : AppCompatActivity() {
                 Element.ALIGN_LEFT,
                 subtitleStyle
             )
+            addLineSpace(document)
+            addLineSpace(document)
+            addLineSpace(document)
+            addLineSpace(document)
+
+            addNewItem(
+                document,
+                "Zahlungsweise: $payingTime",
+                Element.ALIGN_LEFT,
+                cellStyle
+            )
+
+            addNewItem(
+                document,
+                "KONTONUMMER: IBAN  $iban, BLZ  $blz, BIC  $bic",
+                Element.ALIGN_LEFT,
+                cellStyle
+            )
+
+            addLineSpace(document)
+            addLineSpace(document)
+
+            if (taxValue == 0) {
+
+                addNewItem(
+                    document,
+                    "Vermerke:",
+                    Element.ALIGN_LEFT,
+                    subtitleStyle
+                )
+
+                addLineSpace(document)
+
+                addNewItem(
+                    document,
+                    "Hiermit erlaube ich mir folgende Rechnung für Bauleistungen zu stellen. " +
+                            "Die Umsatzsteuer für diese Leistung schuldet nach §13b UStG der " +
+                            "Leistungsempfänger.",
+                    Element.ALIGN_LEFT,
+                    cellStyle
+                )
+
+            }
 
 
             //close
@@ -485,7 +567,13 @@ class InvoiceToPdf : AppCompatActivity() {
         document.add(p)
     }
 
-    fun composeEmail(addresses: Array<String>, subject: String?, attachment: Uri, name: String, projektName: String) {
+    fun composeEmail(
+        addresses: Array<String>,
+        subject: String?,
+        attachment: Uri,
+        name: String,
+        projektName: String
+    ) {
         val intentMail = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("mailto:")
             putExtra(Intent.EXTRA_EMAIL, addresses)

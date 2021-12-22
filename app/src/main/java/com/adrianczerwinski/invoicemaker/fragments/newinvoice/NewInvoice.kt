@@ -26,6 +26,8 @@ import com.adrianczerwinski.invoicemaker.data.viemodels.SellerViewModel
 import com.adrianczerwinski.invoicemaker.databinding.FragmentNewInvoiceBinding
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 class NewInvoice : Fragment() {
@@ -93,12 +95,15 @@ class NewInvoice : Fragment() {
         lateinit var companySell: String
         lateinit var addressSell: String
         lateinit var contactSell: String
+        lateinit var cityOnInvoice: String
         lateinit var taxSell: String
+
 
         lifecycleScope.launch {
             val myData: Seller? = mSellerViewModel.getMySellerData()
             if (myData != null) {
                 companySell = myData.name
+                cityOnInvoice = myData.city
                 addressSell = "${myData.city} ${myData.postalCode}, ${myData.streetNumber}"
                 contactSell = "${myData.phone} || ${myData.email}"
                 taxSell = "Stuernummer: ${myData.taxNumber}"
@@ -174,6 +179,9 @@ class NewInvoice : Fragment() {
                         intent.putExtra("ProjectName", binding.etProjectName.text.toString())
                         intent.putExtra("Paying", binding.btChoosePayment2.text.toString())
                         intent.putExtra("InvoiceNumber", binding.invoiceNumber.text.toString())
+
+                        intent.putExtra("city", cityOnInvoice)
+                        intent.putExtra("Paying", cityOnInvoice)
                         intent.putParcelableArrayListExtra(
                             "data",
                             data as java.util.ArrayList<out Parcelable>
@@ -494,6 +502,8 @@ class NewInvoice : Fragment() {
 
 
         if (MyClient.name != "Clients Name") {
+            val calendarAndTime = LocalDateTime.now()
+            val dateToday = calendarAndTime.format(DateTimeFormatter.ofPattern("y-M-d")).toString()
             val newInvoice =
                 Invoice(
 //                    0,
@@ -504,7 +514,8 @@ class NewInvoice : Fragment() {
                     binding.btVat.text.toString().toInt(),
                     MyClient,
                     binding.etProjectName.text.toString(),
-                    binding.btChoosePayment2.text.toString()
+                    binding.btChoosePayment2.text.toString(),
+                    dateToday
                 )
             mInvoiceViewModel.insertInvoice(newInvoice)
         } else

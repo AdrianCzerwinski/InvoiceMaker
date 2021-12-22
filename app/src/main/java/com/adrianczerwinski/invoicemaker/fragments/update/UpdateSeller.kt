@@ -61,6 +61,9 @@ class UpdateSeller : Fragment() {
                 binding.myEtPostalTxt.setText(myData.postalCode)
                 binding.myPhoneTxt.setText(myData.phone)
                 binding.myTaxTxt.setText(myData.taxNumber)
+                binding.myIbanEt.setText(myData.iban)
+                binding.myBlzEt.setText(myData.blz)
+                binding.myBicEt.setText(myData.bic)
 
             }
         }
@@ -74,12 +77,24 @@ class UpdateSeller : Fragment() {
             val streetNumber1 = binding.myEtAddress2TxtStreet.text.toString()
             val postalCode1 = binding.myEtPostalTxt.text.toString()
             val city1 = binding.myEtAddressTxtStreet.text.toString()
+            var iban = binding.myIbanEt.text.toString()
+            var blz = binding.myBlzEt.text.toString()
+            var bic = binding.myBicEt.text.toString()
 
 
             if (inputCheck(name1, email1, taxNumber1, streetNumber1, postalCode1, city1)) {
+                if (iban.isEmpty()){
+                    iban = ""
+                }
+                if (blz.isEmpty()){
+                    blz = ""
+                }
+                if (bic.isEmpty()){
+                    bic = ""
+                }
                 // Tworzy firmę:
                 val seller =
-                    Seller(1, name1, email1, phone1, taxNumber1, streetNumber1, postalCode1, city1)
+                    Seller(1, name1, email1, phone1, taxNumber1, streetNumber1, postalCode1, city1, iban, blz, bic)
                 // Dodaje firmę do bazy danych na telefonie:
                 mSellerViewModel.updateClient(seller)
                 findNavController().navigate(R.id.action_updateSeller2_to_finances)

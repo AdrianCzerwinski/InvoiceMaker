@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         if (firstTime == "YES" && name != "") {
             binding.welcome.isVisible = false
+            binding.saveMyData.isVisible = false
             binding.navHostFragment.isVisible = true
             val navHostFragment = supportFragmentManager
                 .findFragmentById(R.id.navHostFragment) as NavHostFragment
@@ -76,12 +77,23 @@ class MainActivity : AppCompatActivity() {
         val streetNumber1 = binding.myEtAddress2TxtStreet.text.toString()
         val postalCode1 = binding.myEtPostalTxt.text.toString()
         val city1 = binding.myEtAddressTxtStreet.text.toString()
+        var iban = binding.myIbanEt.text.toString()
+        var blz = binding.myBlzEt.text.toString()
+        var bic = binding.myBicEt.text.toString()
 
 
         if (inputCheck(name1, email1, taxNumber1, streetNumber1, postalCode1, city1)) {
-            // Tworzy firmę:
+            if (iban.isEmpty()){
+                iban = ""
+            }
+            if (blz.isEmpty()){
+                blz = ""
+            }
+            if (bic.isEmpty()){
+                bic = ""
+            }
             val seller =
-                Seller(1, name1, email1, phone1, taxNumber1, streetNumber1, postalCode1, city1)
+                Seller(1, name1, email1, phone1, taxNumber1, streetNumber1, postalCode1, city1, iban, blz, bic)
             // Dodaje firmę do bazy danych na telefonie:
             mSellerViewModel.putMyData(seller)
             Toast.makeText(this, "Dodano nowego klienta.", Toast.LENGTH_LONG).show()

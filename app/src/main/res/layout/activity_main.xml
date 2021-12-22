@@ -7,6 +7,10 @@
     android:background="@drawable/google_pixel_5__1"
     tools:context=".MainActivity">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -199,21 +203,81 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/save_my_data"
-            android:visibility="visible"
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/TextEditClient"
+            android:id="@+id/my_iban"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:clickable="true"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_check_24" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="5dp"
+            app:layout_constraintTop_toBottomOf="@id/my_tax"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/my_iban_et"
+                android:layout_width="match_parent"
+                android:textColor="@color/text"
+                android:layout_height="match_parent"
+                android:inputType="numberDecimal"
+                android:hint="Numer Konta"
+                android:textSize="18sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/my_blz"
+            style="@style/TextEditClient"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="5dp"
+            app:layout_constraintTop_toBottomOf="@id/my_iban"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/my_blz_et"
+                android:layout_width="match_parent"
+                android:textColor="@color/text"
+                android:layout_height="match_parent"
+                android:inputType="numberDecimal"
+                android:hint="Numer BLZ"
+                android:textSize="18sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/my_bic"
+            style="@style/TextEditClient"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="5dp"
+            app:layout_constraintTop_toBottomOf="@id/my_blz"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/my_bic_et"
+                android:layout_width="match_parent"
+                android:textColor="@color/text"
+                android:layout_height="match_parent"
+                android:inputType="numberDecimal"
+                android:hint="Numer BIC"
+                android:textSize="18sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
 
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/navHostFragment"
@@ -223,6 +287,18 @@
         android:visibility="invisible"
         app:defaultNavHost="true"
         app:navGraph="@navigation/my_nav" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/save_my_data"
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_baseline_check_24" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

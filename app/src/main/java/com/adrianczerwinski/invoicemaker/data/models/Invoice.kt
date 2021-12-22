@@ -19,7 +19,8 @@ data class Invoice(
     @Embedded
     var clientName: Client,
     var projectName: String,
-    var payingTime: String
+    var payingTime: String,
+    var date: String
 
     ) : Parcelable
 

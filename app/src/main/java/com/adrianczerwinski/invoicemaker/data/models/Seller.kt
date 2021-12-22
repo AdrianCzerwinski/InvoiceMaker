@@ -16,5 +16,8 @@ data class Seller (
     var taxNumber: String,
     var streetNumber: String,
     var postalCode: String,
-    var city: String
+    var city: String,
+    var iban: String,
+    var blz: String,
+    var bic: String
 ) : Parcelable
