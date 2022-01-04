@@ -50,11 +50,11 @@
         <item>"19"</item>
     </string-array>
     <string-array name="payings">
-        <item>"Gotówka"</item>
-        <item>"7 dni"</item>
-        <item>"14 dni"</item>
-        <item>"21 dni"</item>
-        <item>"30 dni"</item>
+        <item>"Barzahlung"</item>
+        <item>"7 Tage"</item>
+        <item>"14 Tage"</item>
+        <item>"21 Tage"</item>
+        <item>"30 Tage"</item>
     </string-array>
 
 </resources>

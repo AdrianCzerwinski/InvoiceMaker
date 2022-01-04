@@ -26,9 +26,8 @@
             android:textColor="#A6FFC400"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/list_name"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
        <TextView
             android:id="@+id/list_name"
@@ -86,7 +85,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/bt_edit"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/list_name"
             app:tint="#BEFFC400"
             app:srcCompat="@drawable/ic_baseline_remove_circle_outline_24" />
 

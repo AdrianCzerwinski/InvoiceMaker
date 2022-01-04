@@ -6,7 +6,7 @@
     app:startDestination="@id/finances">
     <fragment
         android:id="@+id/finances"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.finances.Finances"
+        android:name="com.adrianczerwinski.faktura.fragments.finances.Finances"
         android:label="fragment_finances"
         tools:layout="@layout/fragment_finances" >
         <action
@@ -21,7 +21,7 @@
     </fragment>
     <fragment
         android:id="@+id/newInvoice"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.newinvoice.NewInvoice"
+        android:name="com.adrianczerwinski.faktura.fragments.newinvoice.NewInvoice"
         android:label="fragment_new_invoice"
         tools:layout="@layout/fragment_new_invoice" >
         <action
@@ -36,7 +36,7 @@
     </fragment>
     <fragment
         android:id="@+id/clientsList"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.list.ClientsList"
+        android:name="com.adrianczerwinski.faktura.fragments.list.ClientsList"
         android:label="fragment_clients_list"
         tools:layout="@layout/fragment_clients_list" >
         <action
@@ -57,7 +57,7 @@
     </fragment>
     <fragment
         android:id="@+id/newClient"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.newclient.NewClient"
+        android:name="com.adrianczerwinski.faktura.fragments.newclient.NewClient"
         android:label="fragment_new_client"
         tools:layout="@layout/fragment_new_client" >
         <action
@@ -66,18 +66,18 @@
     </fragment>
     <fragment
         android:id="@+id/updaterFragment"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.update.UpdaterFragment"
+        android:name="com.adrianczerwinski.faktura.fragments.update.UpdaterFragment"
         android:label="Update" >
         <action
             android:id="@+id/action_updaterFragment_to_clientsList"
             app:destination="@id/clientsList" />
         <argument
             android:name="currentClient"
-            app:argType="com.adrianczerwinski.invoicemaker.data.models.Client" />
+            app:argType="com.adrianczerwinski.faktura.data.models.Client" />
     </fragment>
     <fragment
         android:id="@+id/deleteSingleClient"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.delete.DeleteSingleClient"
+        android:name="com.adrianczerwinski.faktura.fragments.delete.DeleteSingleClient"
         android:label="fragment_delete_single_client"
         tools:layout="@layout/fragment_delete_single_client" >
         <action
@@ -85,31 +85,31 @@
             app:destination="@id/clientsList" />
         <argument
             android:name="currentClient"
-            app:argType="com.adrianczerwinski.invoicemaker.data.models.Client" />
+            app:argType="com.adrianczerwinski.faktura.data.models.Client" />
     </fragment>
     <activity
         android:id="@+id/invoiceToPdf"
-        android:name="com.adrianczerwinski.invoicemaker.InvoiceToPdf"
+        android:name="com.adrianczerwinski.faktura.InvoiceToPdf"
         android:label="activity_invoice_to_pdf"
         tools:layout="@layout/activity_invoice_to_pdf" >
         <argument
             android:name="currentClient"
-            app:argType="com.adrianczerwinski.invoicemaker.fragments.newinvoice.InvoicingClient" />
+            app:argType="com.adrianczerwinski.faktura.fragments.newinvoice.InvoicingClient" />
     </activity>
     <fragment
         android:id="@+id/invoicesList"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.list.InvoicesList"
+        android:name="com.adrianczerwinski.faktura.fragments.list.InvoicesList"
         android:label="InvoicesList" >
-        <action
-            android:id="@+id/action_invoicesList_to_deleteSingleInvoice"
-            app:destination="@id/deleteSingleInvoice" />
         <action
             android:id="@+id/action_invoicesList_to_finances"
             app:destination="@id/finances" />
+        <action
+            android:id="@+id/action_invoicesList_to_deleteSingleInvoice"
+            app:destination="@id/deleteSingleInvoice" />
     </fragment>
     <fragment
         android:id="@+id/updateSeller2"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.update.UpdateSeller"
+        android:name="com.adrianczerwinski.faktura.fragments.update.UpdateSeller"
         android:label="UpdateSeller" >
         <action
             android:id="@+id/action_updateSeller2_to_finances"
@@ -117,13 +117,13 @@
     </fragment>
     <fragment
         android:id="@+id/deleteSingleInvoice"
-        android:name="com.adrianczerwinski.invoicemaker.fragments.delete.DeleteSingleInvoice"
+        android:name="com.adrianczerwinski.faktura.fragments.delete.DeleteSingleInvoice"
         android:label="DeleteSingleInvoice" >
         <action
             android:id="@+id/action_deleteSingleInvoice_to_invoicesList"
             app:destination="@id/invoicesList" />
         <argument
             android:name="currentInvoice"
-            app:argType="com.adrianczerwinski.invoicemaker.data.models.Invoice" />
+            app:argType="com.adrianczerwinski.faktura.data.models.Invoice" />
     </fragment>
 </navigation>
