@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.adrianczerwinski.faktura.data.models.Seller
 
 
-@Database(entities = [Seller::class], version =1, exportSchema = false)
+@Database(entities = [Seller::class], version =2, exportSchema = false)
 
 abstract class SellerDatabase: RoomDatabase() {
 

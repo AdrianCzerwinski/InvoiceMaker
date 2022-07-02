@@ -3,6 +3,7 @@ package com.adrianczerwinski.faktura
 
 import android.content.Context
 import android.content.Intent
+import kotlin.math.round
 import android.net.Uri
 import android.os.Bundle
 import android.print.PrintAttributes
@@ -42,6 +43,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.math.roundToInt
 
 
 class InvoiceToPdf : AppCompatActivity() {
@@ -464,6 +466,28 @@ class InvoiceToPdf : AppCompatActivity() {
             addLineSpace(document)
             addLineSpace(document)
 
+            val netto = sum/(1+(taxValue*0.01))
+            val zzgl = sum - netto
+            val nettoString = netto.round(2)
+            val zzglString = zzgl.round(2)
+
+
+            addNewItem(
+                document,
+                "Gesampt netto: $nettoString $currencyVar",
+                Element.ALIGN_LEFT,
+                cellStyle
+            )
+            addLineSpace(document)
+
+            addNewItem(
+                document,
+                "zzgl. $taxValue%: $zzglString $currencyVar",
+                Element.ALIGN_LEFT,
+                cellStyle
+            )
+            addLineSpace(document)
+
             addNewItem(
                 document,
                 "Gesamptbetrag: $sum $currencyVar",
@@ -632,5 +656,9 @@ class InvoiceToPdf : AppCompatActivity() {
 
 
 }
-
+fun Double.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
+}
 
